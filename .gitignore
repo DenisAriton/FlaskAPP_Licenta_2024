@@ -1,0 +1,5 @@
+#.idea file is a PyCharm file!
+.idea
+__pycache__/
+.venv/
+uploads/
