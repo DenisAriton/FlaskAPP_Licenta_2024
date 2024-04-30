@@ -3,3 +3,9 @@
 __pycache__/
 .venv/
 uploads/
+views/
+authentication/
+forms.py
+usefulFunc.py
+static/
+templates/

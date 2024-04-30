@@ -1,0 +1,25 @@
+version: '3'
+services:
+  dbMySQL:
+    container_name: ServerMySQL
+    image: mariadb:11
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_DATABASE: authFiles
+      MYSQL_USER: denis
+      MYSQL_PASSWORD: 54321
+      TZ: Europe/Bucharest
+    volumes:
+      - databaseSQL:/var/lib/mysql
+      #  creeaza baza de date prin fisierul cu extensia .mysql din folderul local ./database
+      # - ./database:/docker-entrypoint-initdb.d
+
+    networks:
+      - mariadb_network
+    ports:
+      - "3307:3306"
+volumes:
+  databaseSQL:
+networks:
+  mariadb_network:
