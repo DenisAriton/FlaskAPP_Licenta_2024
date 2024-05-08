@@ -1,0 +1,107 @@
+{% extends "index.html" %}
+{% block cssstyle %}<link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">{% endblock %}
+{% block title %} Profile {% endblock %}
+
+{% block content %}
+    <h1>Profile </h1>
+    <ul>
+        {# Daca exista vreo imagine deja in baza de date afiseaz-o pe aceea, in caz contrat o imagine default!#}
+        <div class="profile-img-box">
+            {% if cur_object.image %}
+                <img src="{{cur_object.image[0].RelativePath + cur_object.image[0].ImageName}}" class="profile-img">
+                <p> idImg:{{ cur_object.image[0].idImage }}<br/>
+                    RelativePath+name: {{ cur_object.image[0].RelativePath + cur_object.image[0].ImageName }} <br/>
+                    idUser:{{ cur_object.image[0].idUser }}</p>
+                    {{ url_for('static', filename='images/default_img.png') }}
+            {% else %}
+                <img src="{{ url_for('static', filename='images/default_img.png') }}" class="profile-img">
+            {% endif %}
+        </div>
+        {# Change image #}
+        <form method="POST" enctype="multipart/form-data" action={{url_for('Profile.profile', firstname=firstname, lastname=lastname)}} novalidate >
+            {{ image_form.csrf_token }}
+            {{ image_form.image_up.label(class="form-label") }}
+            {{ image_form.image_up(class="form-control") }}
+        {% if image_form.image_up.errors %}
+            {% for error in image_form.image_up.errors %}
+                <div class="alert alert-danger fade show d-flex justify-content-center align-items-center" role="alert">
+                    <span class="me-auto px-3">{{ error }}</span>
+                    <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        {{ image_form.submit_image(class='btn btn-secondary') }}
+        </form>
+
+        <li>Name: {{ lastname}} {{firstname }}</li>
+        <li>Username: {{ cur_object.userName }}</li>
+        <li>Email: {{ cur_object.email }}</li>
+        <li>Password: {{ cur_object.keyPass }}</li>
+        <li>User Role: {{ cur_object.keyRole }}</li>
+        <li>Account created at: {{ cur_object.timeRegistered }}</li>
+        <li>Data updated at: {{ cur_object.timeReset }}</li>
+        <li>Last login: {{ cur_object.relSession[-1].startTime }}</li>
+    </ul>
+
+    {# butonul ce face trigger la views-ul modal   #}
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Change password</button>
+    {# views-ul modal  #}
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Change password:</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form method="POST" id="reset_form" action={{url_for('Profile.profile', firstname=firstname, lastname=lastname)}} novalidate >
+                {{ reset_form.csrf_token }}
+                <div class="mb-3">
+                {{ reset_form.old_password.label(class="col-form-label") }}
+                {{ reset_form.old_password(class="form-control", id="recipient-name") }}
+                {% if reset_form.old_password.errors %}
+                    {% for error in reset_form.old_password.errors %}
+                        <div class="alert alert-danger fade show d-flex justify-content-center align-items-center" role="alert">
+                            <span class="me-auto px-3">{{ error }}</span>
+                            <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                </div>
+
+                <div class="mb-3">
+                {{ reset_form.new_password.label(class="col-form-label") }}
+                {{ reset_form.new_password(class="form-control", id="recipient-name") }}
+                {% if reset_form.new_password.errors %}
+                    {% for error in reset_form.new_password.errors %}
+                        <div class="alert alert-danger fade show d-flex justify-content-center align-items-center" role="alert">
+                            <span class="me-auto px-3">{{ error }}</span>
+                            <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                </div>
+
+              <div class="mb-3">
+                {{ reset_form.confirm_new_password.label(class="col-form-label") }}
+                {{ reset_form.confirm_new_password(class="form-control", id="recipient-name") }}
+                {% if reset_form.confirm_new_password.errors %}
+                    {% for error in reset_form.confirm_new_password.errors %}
+                        <div class="alert alert-danger fade show d-flex justify-content-center align-items-center" role="alert">
+                            <span class="me-auto px-3">{{ error }}</span>
+                            <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+              </div>
+
+            </form>
+          </div>
+
+          <div class="modal-footer">
+            {{ reset_form.submit(class="btn btn-success", form="reset_form") }}
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}

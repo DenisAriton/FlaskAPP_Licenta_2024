@@ -1,0 +1,20 @@
+{% extends "index.html" %}
+{% block title %} Home {% endblock %}
+{% block content %}
+    {{ cur_object }}
+    {% if cur_object.is_authenticated %}
+        <h1>Welcome {{ cur_object.firstName }}!</h1>
+        <ul>
+            <li>First Name: {{ cur_object.firstName }}</li>
+            <li>Last Name: {{ cur_object.lastName }}</li>
+            <li>Username: {{ cur_object.userName }}</li>
+            <li>Email: {{ cur_object.email }}</li>
+            <li>Role: {{ cur_object.keyRole }}</li>
+            <li>Date: {{ cur_object.timeRegistered.date() }}</li>
+            <li>Hour: {{ cur_object.timeRegistered.time() }}</li>
+            <li>RelSession: {{ cur_object.relSession }}</li>
+            <li>ID: {{ cur_object.idUser }}</li>
+        </ul>
+    {% endif %}
+{#  <p>You have been authenticated!</p>#}
+{% endblock %}

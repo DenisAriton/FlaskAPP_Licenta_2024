@@ -1,0 +1,51 @@
+{% extends 'index.html' %}
+
+{% block cssstyle %}<link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">{% endblock %}
+{% block title %}Upload File{% endblock %}
+
+{% block content %}
+    <form method="POST" action="/upload" enctype="multipart/form-data" novalidate>
+        {{ upload.csrf_token() }}
+        {{ upload.file_up.label(class="form-label") }}
+        {{ upload.file_up(class="form-control") }}
+        {% if upload.file_up.errors %}
+            {% for error in upload.file_up.errors %}
+                <div class="alert alert-danger fade show d-flex justify-content-center align-items-center" role="alert">
+                    <span class="me-auto px-3">{{ error }}</span>
+                    <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        {{ upload.submit_file(class='btn btn-secondary') }}
+    </form>
+    {% if files_view %}
+    <h2>Files uploaded:</h2>
+        <table class="table">
+          <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Filename</th>
+                <th scope="col">Size</th>
+                <th scope="col">Time</th>
+                <th scope="col">Delete</th>
+            </tr>
+          </thead>
+         {% for file in files_view  %}
+             {{ file }}
+          <tbody>
+            <tr>
+                <th scope="row">{{ file.idFile }}</th>
+                <td>{{ file.fileName }}{{ file.format }}</td>
+                <td>{{ file.size }}{{ file.sizeUnit }}</td>
+                <td>{{ file.uploadTime }}</td>
+                <td>
+                    <a href={{ url_for('views.delete_file', id_file=file.idFile) }}>
+                        <button type="button" class="btn-close" aria-label="Close"></button>
+                    </a>
+                </td>
+            </tr>
+          </tbody>
+        {% endfor %}
+        </table>
+    {% endif %}
+{% endblock %}

@@ -2,10 +2,6 @@
 .idea
 __pycache__/
 .venv/
-uploads/
-views/
-authentication/
-forms.py
-usefulFunc.py
-static/
-templates/
+.env
+Uploads/
+DB_EER_FlaskAPP.png

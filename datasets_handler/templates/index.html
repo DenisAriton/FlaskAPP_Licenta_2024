@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+          crossorigin="anonymous">
+
+    {% block cssstyle %}{% endblock %}
+    <title>{% block title %}{% endblock %}</title>
+
+</head>
+<body>
+    {% if cur_object.is_authenticated %}
+     <!-- Navbar aici -->
+    <nav class="navbar navbar-expand-md sticky-top bg-dark border-bottom border-body" data-bs-theme="dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{url_for('Routes.home', name=current_user.firstName~current_user.lastName)}}">
+                <img src="https://getbootstrap.com/docs/5.3/assets/brand/bootstrap-logo.svg" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
+                GeniusLab
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav ">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{url_for('Routes.home', name=current_user.firstName~current_user.lastName)}}">
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{url_for('Datasets.upload_file')}}">
+                            Files
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href={{url_for('Login.logout')}}>
+                            Logout
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{url_for('Profile.profile', firstname=cur_object.firstName, lastname=cur_object.lastName)}}">
+                            Profile
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+    <!-- Continut pagini -->
+    <div class="context">
+<!-- Prin codul urmator stilizam si preluam flash messages din codul python si le afisam, sunt stilizate cu clase bootstrap!
+with statement - este o afirmatie specifica jinja si ne permite crearea de variabile-->
+        {% with m = get_flashed_messages(with_categories = true) %}
+            {% if m %}
+                {% for category, mess in m %}
+                    {% if category == 'error' %}
+                        <div class="alert alert-danger fade show d-flex justify-content-center align-items-center" role="alert">
+                            <span class="me-auto px-3">{{mess}}</span>
+                            <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-success fade show d-flex justify-content-center align-items-center" role="alert">
+                            <span class="me-auto px-3">{{mess}}</span>
+                            <button type="button" class="btn-close" aria-label="Close"  data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %}
+        {# Aici vom insera toate paginile! #}
+        {% endblock %}
+    </div>
+    <!-- Footer  -->
+    <div class="container">
+        <footer class="py-3 my-4">
+          <ul class="nav justify-content-center border-bottom pb-3 mb-3">
+            <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Home</a></li>
+            <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Features</a></li>
+            <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Pricing</a></li>
+            <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">FAQs</a></li>
+            <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">About</a></li>
+          </ul>
+          <p class="text-center text-muted">© 2024 Genius Laboratory</p>
+        </footer>
+      </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+</body>
+</html>

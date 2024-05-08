@@ -1,0 +1,20 @@
+<!--Extindem pagina de baza de baza si adaugam continut in blocul content!!!-->
+{% extends "index.html" %}
+{% block cssstyle %}<link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">{% endblock %}
+<!--Se modifica tagul title, deoarece ne aflam in pagina Users-->
+{% block title %} Users {% endblock %}
+{#  In acest template vom avea urmatoarele functionalitati strict pentru administrator:
+    - o lista cu toti userii
+    - fiecare user va fi un radio button cu cateva detalii despre cine este user-ul (firstName si lastName)
+    - daca un user detine o anume grupa sa fie creata o zona specifica fiecarei grupe si sa apara acolo
+    - daca nu detine o grupa anume, sa fie listat doar intr-o zona cu denumire Not assigned to a group
+    - daca user-ul este asignat unei grupe, pe acesta se va face update
+    - daca user-ul nu este asignat unei grupe, pe acesta se va face insert
+    - tot pe aceasta pagina se va crea un formular in care se vor crea grupele
+    - va fi un buton prin care se vor sterge grupele(atentie ca trebuie prima data sterse de la cine sunt asignate, daca sunt deja
+       asignate)
+    - dupa ce au fost create grupele, doar atunci se pot asigna unor useri, altfel nu va fi vizibila lista cu grupele
+#}
+{% block content %}
+
+{% endblock %}
