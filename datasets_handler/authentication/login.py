@@ -15,9 +15,11 @@ login_blueprint = Blueprint('Login', __name__, template_folder='templates', stat
 def login():
     form_log = LoginForm()
     # Daca este logat user-ul redirectioneaza-l direct catre home page
+
     if current_user.is_authenticated:
+        name = current_user.firstName + current_user.lastName
         flash("You are already logged in!", category="success")
-        return redirect(url_for('Routes.home'))
+        return redirect(url_for('Routes.home', name=name))
     # Daca nu este logat, ramanem pe login page pentru autentificare
     elif form_log.validate_on_submit():
         userdata = form_log.username.data
@@ -33,7 +35,7 @@ def login():
         db.session.add(new_session)
         db.session.commit()
         flash('You have been logged in!', category='success')
-        name = current_user.firstName+current_user.lastName
+        name = current_user.firstName + current_user.lastName
         return redirect(url_for('Routes.home', name=name))
 
     return render_template('signin.html', form_log=form_log, cur_object=current_user)

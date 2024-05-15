@@ -41,7 +41,7 @@ def create_app():
     app.register_blueprint(datasets.datasets_blueprint, url_prefix='/')
 
     # Cream baza de date cu toate tabelele definite in ORM-ul models
-    from .models import UserIdentification, UserSession, DataFiles, LogFile, FileAccess, UserImage, UserGroup, Groups
+    from .models import UserIdentification, UserSession, DataFiles, LogFile, FileAccess, UserGroup, Groups
     with app.app_context():
         db.create_all()
 
@@ -59,5 +59,9 @@ def create_app():
         if key == "DATASETS_PATH" or key == "IMG_PATH" or key == "ABS_UPLOADS_PATH":
             dir_maker = CreateDirectory(path=el)
             dir_maker.make_folder()
+
+    # Afisam dictionarul app.config sa vedem valorile - debugging doar
+    # for key, el in app.config.items():
+    #     print(f'{key}: {el}')
 
     return app

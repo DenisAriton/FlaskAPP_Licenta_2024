@@ -1,11 +1,14 @@
+import os
+
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileRequired, FileSize, MultipleFileField, FileField
-from wtforms import StringField, PasswordField, SubmitField, ValidationError
+from wtforms import StringField, PasswordField, SubmitField, ValidationError, TextAreaField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Regexp
 from .models import UserIdentification
 from .settings import verify_format_email
 from flask_login import current_user
-
+from os import listdir
+from datasets_handler import app
 
 # https: // github.com / marcelomd / flask - wtf - login - example / blob / master / app / forms.py
 # https://github.com/toddbirchard/flasklogin-tutorial/blob/master/flask_login_tutorial/forms.py\
@@ -14,13 +17,12 @@ from flask_login import current_user
 
 
 class SignUpForm(FlaskForm):
-    # firstname trebuie sa fie format doar din litere, se pot introduce maxim 2 prenume: Denis Adrian
     firstname = StringField(
         'First Name',
         validators=
         [
             DataRequired(message='Please enter your first name'),
-            Regexp(r"^[a-zA-Z]+$|^[a-zA-Z]+\s+[a-zA-Z]+$", message='Please enter your name with letters only!')
+            Regexp(r'[a-zA-Z\s]+$', message='Please enter your name with letters only!')
         ],
         render_kw={"placeholder": "Olga Devin"})
     # lastname trebuie sa fie format doar din litere, se introduce doar numele: Ariton
@@ -29,7 +31,7 @@ class SignUpForm(FlaskForm):
         validators=
         [
             DataRequired(message='Please enter your last name'),
-            Regexp(r"^[a-zA-Z]+$", message='Please enter just your last name with letters only!')
+            Regexp(r'[a-zA-Z\s]+$', message='Please enter just your last name with letters only!')
         ],
         render_kw={"placeholder": "Enderson"})
 
@@ -71,14 +73,14 @@ class SignUpForm(FlaskForm):
     submit = SubmitField('Sign Up')
 
     # Aceste metode validate_NumeCampInput vor fi instantiate in momentul in care exista in db username-ul sau email-ul
-    def validate_username(self, field):
-        form_data = self.username.data
+    def validate_username(form, field):
+        form_data = field.data
         user = UserIdentification.query.filter_by(userName=form_data).first()
         if user:
             raise ValidationError('An account was created with this username already!')
 
-    def validate_email(self, field):
-        form_data = self.email.data
+    def validate_email(form, field):
+        form_data = field.data
         email = UserIdentification.query.filter_by(email=form_data).first()
         if email:
             raise ValidationError('An account was created with this email already!')
@@ -102,13 +104,13 @@ class LoginForm(FlaskForm):
 
     submit = SubmitField('Log In')
 
-    def validate_username(self, field):
+    def validate_username(form, field):
         """
         Verify if the username or email exists in the database
         :param field: validate_username
         :return: Raise an ValidationError
         """
-        data_form = self.username.data
+        data_form = field.data
         if verify_format_email(data_form):
             userid = UserIdentification.query.filter_by(email=data_form).first()
             if userid is None:
@@ -118,8 +120,8 @@ class LoginForm(FlaskForm):
             if userid is None:
                 raise ValidationError('Incorrect username!')
 
-    def validate_password(self, field):
-        data_form = self.username.data
+    def validate_password(form, field):
+        data_form = form.username.data
         # Creeaza o instanta a clasei UserIdentification pe baza userid-ului introdus pentru putea face verificarea parolei
         if verify_format_email(data_form):
             userdb = UserIdentification.query.filter_by(email=data_form).first()
@@ -130,7 +132,26 @@ class LoginForm(FlaskForm):
                 raise ValidationError('Incorrect password!')
 
 
+class FileFolderDescription(FlaskForm):
+    file_description = TextAreaField(
+        'Add a description for dataset:',
+        render_kw={"placeholder": "This dataset contains values for iris dataset..."}
+    )
+    file_folder = StringField(
+        'Create a folder:',
+        render_kw={"placeholder": "Folder name"}
+    )
+    submit_folder = SubmitField('Save')
+
+    def validate_file_folder(form, field):
+        folder_name = field.data
+        folders_list = listdir(app.config['DATASETS_PATH'])
+        if folder_name in folders_list:
+            raise ValidationError(f'This name {folder_name} already exists!')
+
+
 class UploadFile(FlaskForm):
+
     file_up = MultipleFileField(
         'Upload File',
         validators=
@@ -144,6 +165,10 @@ class UploadFile(FlaskForm):
 
     submit_file = SubmitField("Upload")
 
+    def validate_file_up(form, field):
+        if field.data and len(field.data) >= 5:
+            raise ValidationError('Just 5 files are allowed!')
+
 
 class ImageProfile(FlaskForm):
     image_up = FileField(
@@ -152,12 +177,49 @@ class ImageProfile(FlaskForm):
         [
             FileRequired(message='Upload an image!'),
             FileSize(max_size=5 * 1024 * 1024,
-                     message="File's size must be less than 25MB!"),
+                     message="File's size must be less than 5MB!"),
             FileAllowed(['jpg', 'jpeg', 'png'],
-                        message='Images with these extensions are allowed! .jpeg, .jpg, .png')
+                        message='Images with these extensions are allowed! .jpeg, .jpg, .png !')
         ])
 
     submit_image = SubmitField("Change Image")
+
+
+class ProfileForm(FlaskForm):
+    firstname = StringField(
+        'First Name',
+        validators=
+        [
+            DataRequired(message='Please enter your first name'),
+            Regexp(r'[a-zA-Z\s]+$', message='Please enter your name with letters only!')
+        ],
+        render_kw={"placeholder": "Olga Devin"})
+    # lastname trebuie sa fie format doar din litere, se introduce doar numele: Ariton
+    lastname = StringField(
+        'Last Name',
+        validators=
+        [
+            DataRequired(message='Please enter your last name'),
+            Regexp(r'[a-zA-Z\s]+$', message='Please enter just your last name with letters only!')
+        ],
+        render_kw={"placeholder": "Enderson"})
+
+    email = StringField(
+        'Email',
+        validators=
+        [
+            DataRequired(message='Please enter your email'),
+            Email(message="Please enter a valid email", check_deliverability=True)
+        ],
+        render_kw={"placeholder": "youremail@example.com"})
+
+    submit = SubmitField('Change')
+
+    def validate_email(form, field):
+        form_data = field.data
+        email = UserIdentification.query.filter_by(email=form_data).first()
+        if email:
+            raise ValidationError('An account was created with this email already!')
 
 
 class ResetPassword(FlaskForm):
@@ -174,14 +236,14 @@ class ResetPassword(FlaskForm):
         [
             DataRequired(message='Enter your old password!')
         ],
-        render_kw={"placeholder": "Type your old password"})
+        render_kw={"placeholder": "Old password"})
     new_password = PasswordField(
         'New Password',
         validators=
         [
             DataRequired(message='Enter your new password!')
         ],
-        render_kw={"placeholder": "Type your new password"})
+        render_kw={"placeholder": "New password"})
 
     confirm_new_password = PasswordField(
         'Confirm New Password',
@@ -193,24 +255,24 @@ class ResetPassword(FlaskForm):
         render_kw={"placeholder": "Confirm your new password"})
     submit = SubmitField("Save")
 
-    def validate_old_password(self, field):
+    def validate_old_password(form, field):
         """
         Verificam daca vechea parola este corecta!
         :param field:
         :return:
         """
-        data_form = self.old_password.data
+        data_form = field.data
         if current_user:
             if current_user.check_password(keypass=data_form) is False:
                 raise ValidationError('Incorrect password!')
 
-    def validate_new_password(self, field):
+    def validate_new_password(form, field):
         """
         Verificam daca noua parola nu este la fel ca cea veche!
         :param field:
         :return:
         """
-        data_form = self.new_password.data
+        data_form = field.data
         if current_user:
             if current_user.check_password(keypass=data_form):
-                raise ValidationError('New password can\'t be similar to old password!')
+                raise ValidationError('The new password can\'t be similar to old password!')

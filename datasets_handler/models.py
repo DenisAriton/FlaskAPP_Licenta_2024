@@ -14,15 +14,15 @@ class UserIdentification(db.Model, UserMixin):
     email = mapped_column(VARCHAR(255), unique=True, nullable=False)
     keyPass = mapped_column(VARCHAR(255), unique=True, nullable=False)
     keyRole = mapped_column(VARCHAR(255), nullable=False, server_default='User')
+    ImageName = mapped_column(VARCHAR(255), unique=True, nullable=True)
     # Momentul inregistrarii
     timeRegistered = mapped_column(TIMESTAMP, nullable=False, server_default=text('CURRENT_TIMESTAMP'))
     # Momentul resetarii informatiilor personale
-    timeReset = mapped_column(TIMESTAMP, nullable=True, server_default=text('NULL ON UPDATE CURRENT_TIMESTAMP'))
+    timeReset = mapped_column(TIMESTAMP, nullable=True)
     # Aici se definesc relatiile dintre tabele - aceasta este forma non-annotated
     relSession = relationship("UserSession")
     relLog = relationship("LogFile", back_populates="user_log")
     groups = relationship("UserGroup", back_populates="userId")
-    image = relationship("UserImage")
 
     def get_id(self):
         """
@@ -38,18 +38,6 @@ class UserIdentification(db.Model, UserMixin):
     def check_password(self, keypass):
         """Verificam hash-ul!"""
         return check_password_hash(self.keyPass, keypass)
-
-
-class UserImage(db.Model):
-    """
-    In acest tabel retinem calea relativa catre fiecare imagine destinata unui singur user!
-    Fiecare user poate detine o singura imagine!
-    """
-    __tablename__ = "user_image"
-    idImage = mapped_column(Integer, primary_key=True, autoincrement=True, nullable=False)
-    ImageName = mapped_column(VARCHAR(255), unique=True, nullable=False)
-    RelativePath = mapped_column(VARCHAR(255), nullable=True)
-    idUser = mapped_column(Integer, ForeignKey("user_identification.idUser"), unique=True, nullable=False)
 
 
 class Groups(db.Model):
@@ -125,10 +113,10 @@ class FileAccess(db.Model):
     """
     __tablename__ = "file_access"
     idAccess = mapped_column(Integer, primary_key=True, nullable=False)
-    idGroup = mapped_column(Integer, ForeignKey('groups.idGroup'), nullable=False)
+    idGroup = mapped_column(Integer, ForeignKey('groups.idGroup'))
     idFile = mapped_column(Integer, ForeignKey('data_files.idFile'), nullable=False)
     keyAccess = mapped_column(Integer, nullable=True)
-    rightType = mapped_column(VARCHAR(25), nullable=True)
+    rightType = mapped_column(VARCHAR(25), nullable=True)  # Public sau la nivel de grup
     # Momentul in care s-a dat access la fisier!
     startTime = mapped_column(TIMESTAMP, nullable=False, server_default=text('CURRENT_TIMESTAMP'))
     # Momentul cand s-a luat dreptul unui user la un fisier!

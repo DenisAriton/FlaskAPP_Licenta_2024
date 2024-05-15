@@ -70,3 +70,29 @@ button {
   object-fit: cover;
   object-position: center right;
 }
+
+#InputImage{
+	visibility: hidden;
+}
+
+.label-upload{
+	cursor: pointer;
+	color: #86989B ;
+	height: 40px;
+	width: 250px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #177199;
+	border-radius: 10px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.label-upload:hover{
+	color: #ffffff;
+	background-color: #177199;
+}
+span.material-symbols-outlined:hover{
+	cursor: pointer;
+	color: #177199;
+}

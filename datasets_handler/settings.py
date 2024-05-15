@@ -14,6 +14,7 @@ def verify_format_email(email: str):
         - @ cauta acest caracter
         - \\. cauta un punct
         - $ semnifica sfarsitul sirului
+        - [] doar din acest interval de caractere poate sa fie string-ul
         :param email: Get a string input
         :return: True
     """

@@ -4,7 +4,7 @@
 {% block title %}Upload File{% endblock %}
 
 {% block content %}
-    <form method="POST" action="/upload" enctype="multipart/form-data" novalidate>
+    <form method="POST" action="{{ url_for('Datasets.upload_file') }}" enctype="multipart/form-data" novalidate>
         {{ upload.csrf_token() }}
         {{ upload.file_up.label(class="form-label") }}
         {{ upload.file_up(class="form-control") }}
@@ -39,7 +39,7 @@
                 <td>{{ file.size }}{{ file.sizeUnit }}</td>
                 <td>{{ file.uploadTime }}</td>
                 <td>
-                    <a href={{ url_for('views.delete_file', id_file=file.idFile) }}>
+                    <a href={{ url_for('Datasets.delete_file', id_file=file.idFile) }}>
                         <button type="button" class="btn-close" aria-label="Close"></button>
                     </a>
                 </td>

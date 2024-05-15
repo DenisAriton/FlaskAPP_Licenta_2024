@@ -1,15 +1,36 @@
 from flask import Blueprint, render_template, flash, url_for, redirect
 from flask_login import login_required, current_user
-from datasets_handler.forms import UploadFile
+from datasets_handler.forms import UploadFile, FileFolderDescription
 from werkzeug.utils import secure_filename
-from datasets_handler import db
+from datasets_handler import db, app
 from datasets_handler.models import DataFiles
+from datasets_handler.settings import CreateDirectory
+from datetime import datetime
 import os
 import uuid
 
 # Crearea blueprintului pentru modulul views, primul argument este denumirea blueprintului,
 # iar __name__ va returna modulul din care face parte
-datasets_blueprint = Blueprint('Datasets', __name__)
+datasets_blueprint = Blueprint('Datasets', __name__, template_folder='templates', static_folder='static')
+
+
+@datasets_blueprint.route('Select-Folder', methods=['GET', 'POST'])
+@login_required
+def select_folder():
+    form_folder = FileFolderDescription()
+    if form_folder.validate_on_submit():
+        folder_name = form_folder.file_folder.data
+        dataset_description = form_folder.file_description.data
+        app.config['DATASET_FOLDER'] = folder_name
+        app.config['DATASET_DESCRIPTION'] = dataset_description
+        mk_dir = CreateDirectory(path=app.config['DATASETS_PATH'], dir_name=app.config['DATASET_FOLDER'])
+        mk_dir.make_folder()
+        print(f'Folder name: {app.config['DATASET_FOLDER']}\nDescription: {app.config['DATASET_DESCRIPTION']}')
+    folders_datasets = os.listdir(app.config['DATASETS_PATH'])
+    return render_template('selectfolder.html',
+                           cur_object=current_user,
+                           form_folder=form_folder,
+                           folders_datasets=folders_datasets)
 
 
 @datasets_blueprint.route('upload', methods=['GET', 'POST'])
@@ -17,19 +38,16 @@ datasets_blueprint = Blueprint('Datasets', __name__)
 def upload_file():
     exist = True
     upload = UploadFile()
-    print(upload.validate_on_submit())
     if upload.validate_on_submit():
-        print('Dupa validare!')
         for file in upload.file_up.data:
-            file_name = secure_filename(file.filename)
-            # daca exista un fisier cu aceeasi denumire nu se va uploada
+            file_name = str(uuid.uuid4()) + "_" + secure_filename(file.filename)
+            # Se va cauta dupa nume in db fara extensie daca exista aceasta denumire
             file_db = DataFiles.query.filter_by(fileName=os.path.splitext(file_name)[0]).first()
             if file_db is None:
-                # salvam fisierele in directorul uploads care se afla in directorul static
-                # aflam calea absoluta catre acest modul
-                file.save(os.path.join(os.path.dirname(__file__), 'static\\uploads', file_name))
+                # TODO: Trebuie creat un folder pentru seturile de date ce se uploadeaza si descrierea folderului!
+                file.save(os.path.join(app.config['DATASETS_PATH'], file_name))
                 # introducem numele si extensia separat in db
-                new_file = DataFiles(fileName=os.path.splitext(file_name)[0], format=os.path.splitext(file_name)[1])
+                new_file = DataFiles(fileName=os.path.splitext(file_name)[0], extension=os.path.splitext(file_name)[1])
                 db.session.add(new_file)
                 db.session.commit()
                 flash('Your files has been uploaded!', category="success")
@@ -42,14 +60,15 @@ def upload_file():
                 if file_exist:
                     # NU UITA: Doar dupa ce a urcat fisierul poti insera in db size, asa ca functia asta trebuie mutata de aici!!!
                     # cream denumirea fisierului cu tot cu extensie pentru a-i identifica marimea in MB sau KB
-                    name = file_exist.fileName + file_exist.format
+                    name = file_exist.fileName + file_exist.extension
                     # preluam marimea fisierului in bytes
-                    get_size = os.stat(os.path.join(os.path.dirname(__file__), 'static\\uploads', name)).st_size
+                    get_size = os.stat(os.path.join(app.config['DATASETS_PATH'], name)).st_size
                     #  convertim in KB
                     size = round(get_size / 1024)
                     # stocam in db datele
                     file_exist.size = size
                     file_exist.sizeUnit = 'KB'
+                    file_exist.uploadTime = datetime.now()
                     db.session.add(file_exist)
                     db.session.commit()
             else:
@@ -64,11 +83,11 @@ def upload_file():
 def delete_file(id_file):
     if id_file:
         query_file = DataFiles.query.filter_by(idFile=id_file).first()
-        name_file = query_file.fileName + query_file.format
-        os.remove(os.path.join(os.path.dirname(__file__), 'static\\uploads', name_file))
+        name_file = query_file.fileName + query_file.extension
+        os.remove(os.path.join(app.config['DATASETS_PATH'], name_file))
         db.session.delete(query_file)
         db.session.commit()
         flash('Your files has been deleted!', category="success")
     else:
         flash('The file doesn\'t exist!', category="error")
-    return redirect(url_for('views.upload_file'))
+    return redirect(url_for('Datasets.upload_file'))
