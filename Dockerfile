@@ -1,0 +1,1 @@
+# Acesta este Dockerfile-ul pentru crearea imaginii aplicatiei Flask-gunicorn

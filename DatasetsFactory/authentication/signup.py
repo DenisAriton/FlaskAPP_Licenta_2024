@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, flash, redirect, url_for
-from datasets_handler.models import UserIdentification
-from datasets_handler import db
-from datasets_handler.forms import SignUpForm
+from DatasetsFactory.models import UserIdentification
+from DatasetsFactory import db
+from DatasetsFactory.forms import SignUpForm
 from flask_login import current_user
 
-signup_blueprint = Blueprint('Signup', __name__, template_folder='templates', static_folder='static')
+signup_blueprint = Blueprint('Signup', __name__)
 
 
 @signup_blueprint.route('signup', methods=['GET', 'POST'])
@@ -30,4 +30,4 @@ def signup():
         flash('Your account has been successfully created!', category='success')
         return redirect(url_for('Login.login'))
 
-    return render_template('signup.html', form_auth=form_auth, cur_object=current_user)
+    return render_template('authentication/signup.html', form_auth=form_auth, cur_object=current_user)

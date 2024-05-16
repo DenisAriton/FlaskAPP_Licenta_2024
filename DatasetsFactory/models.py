@@ -1,4 +1,4 @@
-from datasets_handler import db
+from DatasetsFactory import db
 from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy import Integer, VARCHAR, TIMESTAMP, TEXT, Enum, ForeignKey, text
 from flask_login import UserMixin
@@ -42,9 +42,9 @@ class UserIdentification(db.Model, UserMixin):
 
 class Groups(db.Model):
     """
-    Acest tabel va detine toate grupele create de administrator.
+    Acest tabel va detine toate grupele create de admin.
     idGroup: id-ul grupului
-    groupName: denumirea grupului dat de administrator
+    groupName: denumirea grupului dat de admin
     """
     __tablename__ = "groups"
     idGroup = mapped_column(Integer, primary_key=True, autoincrement=True, nullable=False)

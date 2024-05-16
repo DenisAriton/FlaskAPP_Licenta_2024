@@ -1,0 +1,51 @@
+<!--Extindem pagina de baza de baza si adaugam continut in blocul content!!!-->
+{% extends "index.html" %}
+<!--Se modifica tagul title, deoarece ne aflam in pagina SignIn-->
+{% block title %} SignIn {% endblock %}
+
+{# Mostenim blocurile din index prima data si dupa aceea suprascriem block-ul cu formulare! #}
+{% block authentication %}
+    {{ super() }}
+{% endblock %}
+
+{# Titlul boxului de autentificare #}
+{% block title_auth %}Sign In{% endblock %}
+
+{% block auth_content %}
+    <form id="LoginForm" method="POST" action="{{ url_for('Login.login') }}"  novalidate>
+        {{ form_log.csrf_token }}
+        {% if form_log.username.errors %}
+            {% for error in form_log.username.errors %}
+                {{ form_log.username.label(class="form-label label-auth") }}
+                {{ form_log.username(class="form-control is-invalid input-auth") }}
+                <div class="invalid-feedback">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        {% else %}
+            {{ form_log.username.label(class="form-label label-auth") }}
+            {{ form_log.username(class="form-control is-valid input-auth") }}
+        {% endif %}
+
+        {% if form_log.password.errors %}
+            {% for error in form_log.password.errors %}
+                {{ form_log.password.label(class="form-label label-auth") }}
+                {{ form_log.password(class="form-control is-invalid input-auth") }}
+                <div class="invalid-feedback">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        {% else %}
+            {{ form_log.password.label(class="form-label label-auth") }}
+            {{ form_log.password(class="form-control is-valid input-auth") }}
+        {% endif %}
+        {{ form_log.submit(class='btn btn-outline-primary submit-auth', for="LoginForm") }}
+    </form>
+
+    <p>Don't you have an account created?<a href="{{url_for('Signup.signup')}}" style="text-decoration: none;"><br> Create an account</a></p>
+
+{% endblock %}
+
+{% block js_cdn %}
+    {{ super() }}
+{% endblock %}

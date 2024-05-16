@@ -1,6 +1,11 @@
 {% extends "index.html" %}
 {% block title %} Home {% endblock %}
+
 {% block content %}
+{{ super() }}
+{% endblock %}
+
+{% block content_page %}
     {{ cur_object }}
     {% if cur_object.is_authenticated %}
         <h1>Welcome {{ cur_object.firstName }}!</h1>
@@ -15,6 +20,9 @@
             <li>RelSession: {{ cur_object.relSession }}</li>
             <li>ID: {{ cur_object.idUser }}</li>
         </ul>
-        <a href="{{ url_for('Datasets.select_folder') }}" class="btn btn-primary">Upload Dataset</a>
     {% endif %}
+{% endblock %}
+
+{% block js_cdn %}
+    {{ super() }}
 {% endblock %}

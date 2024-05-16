@@ -19,6 +19,19 @@ services:
       - mariadb_network
     ports:
       - "3307:3306"
+
+  #  Al doilea container va rula un server-ul Flask cu toata aplicatia
+  #  DatasetsFactory:
+  #    container_name: FlaskGunicorn
+  #    image: nginx
+  #    restart: always
+
+  #  Al treilea container va rula un server de proxy Nginx
+  #  Nginx:
+  #    container_name: Nginx
+  #    image: nginx
+  #    restart: always
+
 volumes:
   databaseSQL:
 networks:

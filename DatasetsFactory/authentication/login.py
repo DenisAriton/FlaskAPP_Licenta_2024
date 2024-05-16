@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, flash, redirect, url_for
-from datasets_handler.models import UserIdentification, UserSession
+from DatasetsFactory.models import UserIdentification, UserSession
 from sqlalchemy import func
-from datasets_handler import db, log_manager
-from datasets_handler.forms import LoginForm
+from DatasetsFactory import db, log_manager
+from DatasetsFactory.forms import LoginForm
 from flask_login import login_user, logout_user, current_user, login_required
-from datasets_handler.settings import verify_format_email
+from DatasetsFactory.usefull import verify_format_email
 
 # Bluenprint("nume_blueprint", __name__ - numele modulului)
 login_blueprint = Blueprint('Login', __name__, template_folder='templates', static_folder='static')
@@ -15,7 +15,6 @@ login_blueprint = Blueprint('Login', __name__, template_folder='templates', stat
 def login():
     form_log = LoginForm()
     # Daca este logat user-ul redirectioneaza-l direct catre home page
-
     if current_user.is_authenticated:
         name = current_user.firstName + current_user.lastName
         flash("You are already logged in!", category="success")
@@ -35,10 +34,10 @@ def login():
         db.session.add(new_session)
         db.session.commit()
         flash('You have been logged in!', category='success')
-        name = current_user.firstName + current_user.lastName
+        name = current_user.firstName
         return redirect(url_for('Routes.home', name=name))
 
-    return render_template('signin.html', form_log=form_log, cur_object=current_user)
+    return render_template('authentication/signin.html', form_log=form_log, cur_object=current_user)
 
 # user_loader este o functie de apelare care este utilizata pentru a reincarca obiectul utilizatorului pe baza ID-ului
 # stocat in sesiune (returneaza None nu exceptie! daca id-ul nu e valid)
@@ -71,10 +70,12 @@ def unauthorized():
 @login_required
 def logout():
     # Preluam lista de autentificari din relSession pe baza id-ului celui conectat si luam ultima autentificare
-    endtime = current_user.relSession[-1]
-    endtime.endTime = func.current_timestamp()
-    db.session.commit()
-
+    if current_user.relSession:
+        endtime = current_user.relSession[-1]
+        endtime.endTime = func.current_timestamp()
+        db.session.commit()
+    else:
+        pass
     logout_user()
     flash("You have been logged out!", category="success")
     return redirect(url_for('Login.login'))

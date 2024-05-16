@@ -33,12 +33,14 @@ def create_app():
 
     # Inregistrarea blueprinturilor aplicatiei
     from .authentication import login, signup
-    from .views import routes, profile, datasets
+    from .views import routes
+    from DatasetsFactory.profile import dashboard
+    from DatasetsFactory.datasets import datasets
     app.register_blueprint(login.login_blueprint, url_prefix='/')
-    app.register_blueprint(signup.signup_blueprint, url_prefix='/')
-    app.register_blueprint(routes.routes_blueprint, url_prefix='/')
-    app.register_blueprint(profile.profile_blueprint, url_prefix='/')
-    app.register_blueprint(datasets.datasets_blueprint, url_prefix='/')
+    app.register_blueprint(signup.signup_blueprint, url_prefix='/authentication')
+    app.register_blueprint(routes.routes_blueprint, url_prefix='/routes')
+    app.register_blueprint(dashboard.profile_blueprint, url_prefix='/dashboard')
+    app.register_blueprint(datasets.datasets_blueprint, url_prefix='/datasets')
 
     # Cream baza de date cu toate tabelele definite in ORM-ul models
     from .models import UserIdentification, UserSession, DataFiles, LogFile, FileAccess, UserGroup, Groups
@@ -46,7 +48,7 @@ def create_app():
         db.create_all()
 
         # Cream contul de admin - pentru acest insert avem nevoie de un context_app, deoarece nu avem un request anume in sesiune
-        from .settings import CreateAdmin, CreateDirectory
+        from .usefull import CreateAdmin, CreateDirectory
         admin_obj = CreateAdmin(admin_id=app.config["ADMIN_ID"], admin_pw=app.config["ADMIN_PASSWORD"])
         admin_obj.set_admin()
 

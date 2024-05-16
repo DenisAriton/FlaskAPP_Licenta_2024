@@ -35,6 +35,11 @@ document.addEventListener("DOMContentLoaded", function (){
         document.getElementById('FormImage').submit();
     });
 });
+
+// Trigger de tooltip! Daca nu functioneaza aici, il vom introduce in template-uri!
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
 function togg(){
     const data = document.getElementById()
     for (let i=0;i<data.length;i++){

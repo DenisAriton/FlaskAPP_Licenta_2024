@@ -1,0 +1,111 @@
+<!--Extindem pagina de baza de baza si adaugam continut in blocul content!!!-->
+{% extends "index.html" %}
+<!--Se modifica tagul title, deoarece ne aflam in pagina SignIn-->
+{% block title %} SignUp {% endblock %}
+
+{# Mostenim blocurile din index prima data si dupa aceea suprascriem block-ul cu formulare! #}
+{% block authentication %}
+    {{ super() }}
+{% endblock %}
+
+{# Titlul boxului de autentificare #}
+{% block title_auth %}Sign Up{% endblock %}
+
+{% block auth_content %}
+    <form id="SignUpForm" method="POST" action="{{ url_for('Signup.signup') }}"  novalidate>
+        {{ form_auth.csrf_token }}
+        <div class="row">
+            <div class="col-md-6">
+                {% if form_auth.firstname.errors %}
+                    {% for error in form_auth.firstname.errors %}
+                        {{ form_auth.firstname.label(class="form-label label-auth") }}
+                        {{ form_auth.firstname(class="form-control is-invalid input-auth") }}
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    {{ form_auth.firstname.label(class="form-label label-auth") }}
+                    {{ form_auth.firstname(class="form-control is-valid input-auth") }}
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                {% if form_auth.lastname.errors %}
+                    {% for error in form_auth.lastname.errors %}
+                        {{ form_auth.lastname.label(class="form-label label-auth") }}
+                        {{ form_auth.lastname(class="form-control is-invalid input-auth") }}
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    {{ form_auth.lastname.label(class="form-label label-auth") }}
+                    {{ form_auth.lastname(class="form-control is-valid input-auth") }}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                {% if form_auth.username.errors %}
+                    {% for error in form_auth.username.errors %}
+                        {{ form_auth.username.label(class="form-label label-auth") }}
+                        {{ form_auth.username(class="form-control is-invalid input-auth") }}
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    {{ form_auth.username.label(class="form-label label-auth") }}
+                    {{ form_auth.username(class="form-control is-valid input-auth") }}
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                {% if form_auth.email.errors %}
+                    {% for error in form_auth.email.errors %}
+                        {{ form_auth.email.label(class="form-label label-auth") }}
+                        {{ form_auth.email(class="form-control is-invalid input-auth") }}
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    {{ form_auth.email.label(class="form-label label-auth") }}
+                    {{ form_auth.email(class="form-control is-valid input-auth") }}
+                {% endif %}
+            </div>
+        </div>
+        {% if form_auth.password.errors %}
+            {% for error in form_auth.password.errors %}
+                {{ form_auth.password.label(class="form-label label-auth") }}
+                {{ form_auth.password(class="form-control is-invalid input-auth") }}
+                <div class="invalid-feedback">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        {% else %}
+            {{ form_auth.password.label(class="form-label label-auth") }}
+            {{ form_auth.password(class="form-control is-valid input-auth") }}
+        {% endif %}
+
+        {% if form_auth.confirm_password.errors %}
+            {% for error in form_auth.confirm_password.errors %}
+                {{ form_auth.confirm_password.label(class="form-label label-auth") }}
+                {{ form_auth.confirm_password(class="form-control is-invalid input-auth") }}
+                <div class="invalid-feedback">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        {% else %}
+            {{ form_auth.confirm_password.label(class="form-label label-auth") }}
+            {{ form_auth.confirm_password(class="form-control is-valid input-auth") }}
+        {% endif %}
+        {{ form_auth.submit(class='btn btn-outline-primary submit-auth', for="SignUpForm") }}
+
+    </form>
+    <p>Do you have an account?<a href="{{url_for('Login.login')}}" style="text-decoration: none;"><br> Log In</a></p>
+{% endblock %}
+
+{% block js_cdn %}
+    {{ super() }}
+{% endblock %}

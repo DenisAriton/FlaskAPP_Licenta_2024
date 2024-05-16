@@ -1,0 +1,108 @@
+/* Imaginea de profil rotunda! */
+.profile-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center right;
+  }
+
+/* Stilizarea paginilor de autentificare! */
+.context {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: sans-serif;
+	line-height: 1.5;
+	min-height: 100vh;
+	flex-direction: column;
+	margin: 0;
+}
+.main {
+	background-color: rgba(223, 223, 223, 0.29);
+	border-radius: 15px;
+	box-shadow: 0 0 25px rgba(123, 123, 123, 0.5);
+	padding: 10px 20px;
+	transition: transform 0.8s;
+	width: 600px;
+	text-align: center;
+}
+label.label-auth {
+	display: block;
+	width: 100%;
+	margin-top: 10px;
+	margin-bottom: 5px;
+	text-align: left;
+    color: #3131319f;
+	font-weight: bold;
+}
+input.input-auth {
+	display: block;
+	width: 100%;
+	margin-bottom: 15px;
+	padding: 10px;
+	box-sizing: border-box;
+}
+h2.title-auth{
+	color: rgba(109, 109, 109, 0.7);
+	font-family: "Frank Ruhl Libre", serif;
+}
+input.submit-auth {
+	width: 100% ;
+	border-color: rgba(57, 149, 255, 0.9);
+	color: rgba(57, 149, 255, 0.9);
+	margin-bottom: 15px;
+	margin-top: 15px;
+	font-weight: bold;
+}
+input.submit-auth:hover{
+	background-color: rgba(57, 149, 255, 0.9);
+	border-color: rgba(57, 149, 255, 0.9);
+}
+
+/* Stilizarea navbarului top image si nume */
+.top-bar{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.link-sidebar{
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+.link-sidebar:hover{
+	background-color: rgba(57, 149, 255, 0.747);
+	transform: scale(1.05);
+	transition-duration: 50ms;
+}
+.img-sidebar:hover{
+	transform: scale(0.95);
+	transition-duration: 50ms;
+}
+.sidebar-box{
+	background-color: rgba(223, 223, 223, 0.29) !important;
+	border-bottom-right-radius: 20px;
+	border-top-right-radius: 20px;
+	box-shadow: 1px 0px 10px rgba(128, 128, 128, 0.884);
+}
+
+/* Stilizare denumire website */
+.web-name{
+	text-align: center;
+	font-family: "Frank Ruhl Libre", serif;
+	font-size: 50px;
+	text-shadow: 3px 5px 10px #4e4e4ebe;
+}
+.web-name-color-datasets{
+	color:#ff6600cb;
+}
+.web-name-color-factory{
+	color:rgba(57, 149, 255, 0.904);
+}
+/* Stilizare pagina generala  */
+body{
+	background-color: #EEEEEE;
+}

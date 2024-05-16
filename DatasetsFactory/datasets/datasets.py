@@ -1,17 +1,17 @@
 from flask import Blueprint, render_template, flash, url_for, redirect
 from flask_login import login_required, current_user
-from datasets_handler.forms import UploadFile, FileFolderDescription
+from DatasetsFactory.forms import UploadFile, FileFolderDescription
 from werkzeug.utils import secure_filename
-from datasets_handler import db, app
-from datasets_handler.models import DataFiles
-from datasets_handler.settings import CreateDirectory
+from DatasetsFactory import db, app
+from DatasetsFactory.models import DataFiles
+from DatasetsFactory.usefull import CreateDirectory
 from datetime import datetime
 import os
 import uuid
 
 # Crearea blueprintului pentru modulul views, primul argument este denumirea blueprintului,
 # iar __name__ va returna modulul din care face parte
-datasets_blueprint = Blueprint('Datasets', __name__, template_folder='templates', static_folder='static')
+datasets_blueprint = Blueprint('Datasets', __name__)
 
 
 @datasets_blueprint.route('Select-Folder', methods=['GET', 'POST'])
@@ -27,13 +27,13 @@ def select_folder():
         mk_dir.make_folder()
         print(f'Folder name: {app.config['DATASET_FOLDER']}\nDescription: {app.config['DATASET_DESCRIPTION']}')
     folders_datasets = os.listdir(app.config['DATASETS_PATH'])
-    return render_template('selectfolder.html',
+    return render_template('datasets/selectfolder.html',
                            cur_object=current_user,
                            form_folder=form_folder,
                            folders_datasets=folders_datasets)
 
 
-@datasets_blueprint.route('upload', methods=['GET', 'POST'])
+@datasets_blueprint.route('Upload', methods=['GET', 'POST'])
 @login_required
 def upload_file():
     exist = True
@@ -75,7 +75,7 @@ def upload_file():
                 flash('Nu se incarca alte date despre fisier!', category="error")
 
     files_view = DataFiles.query.all()
-    return render_template('upload.html', upload=upload, files_view=files_view, cur_object=current_user)
+    return render_template('datasets/upload.html', upload=upload, files_view=files_view, cur_object=current_user)
 
 
 @datasets_blueprint.route('delete_file/<int:id_file>', methods=['GET', 'POST'])

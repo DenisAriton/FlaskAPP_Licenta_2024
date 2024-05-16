@@ -1,6 +1,6 @@
 """Acesta este un modul ce detine clase si functii utile pentru aplicatie."""
 from .models import UserIdentification
-from datasets_handler import db
+from DatasetsFactory import db
 import re
 import os
 from shutil import rmtree
@@ -24,14 +24,14 @@ def verify_format_email(email: str):
 
 
 class CreateAdmin:
-    """Se va crea un cont de administrator la initializarea aplicatiei!"""
+    """Se va crea un cont de admin la initializarea aplicatiei!"""
     def __init__(self, admin_id, admin_pw):
         self.admin_id = admin_id
         self.admin_pw = admin_pw
 
     def set_admin(self):
         """
-        Se creeaza contul de administrator la aplicatie!
+        Se creeaza contul de admin la aplicatie!
         :return: None
         """
         data_db = db.session.execute(db.select(UserIdentification)).all()

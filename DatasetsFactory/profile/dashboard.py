@@ -1,15 +1,15 @@
 from flask import Blueprint, render_template, flash, url_for, redirect, send_from_directory, jsonify, request
 from flask_login import login_required, current_user
-from datasets_handler.forms import ImageProfile, ResetPassword, ProfileForm
-from datasets_handler import db, app
-from datasets_handler.models import UserIdentification
+from DatasetsFactory.forms import ImageProfile, ResetPassword, ProfileForm
+from DatasetsFactory import db, app
+from DatasetsFactory.models import UserIdentification
 from datetime import datetime
 import os
 import uuid
 
 # Crearea blueprintului pentru modulul views, primul argument este denumirea blueprintului,
 # iar __name__ va returna modulul din care face parte
-profile_blueprint = Blueprint('Profile', __name__, template_folder='templates', static_folder='static')
+profile_blueprint = Blueprint('Profile', __name__)
 
 
 @profile_blueprint.route('profile/<firstname>/<lastname>', methods=['GET', 'POST'])
@@ -74,7 +74,7 @@ def profile(firstname, lastname):
             flash('Your profile has been updated!', category="success")
             return redirect(url_for('Profile.profile', firstname=current_user.firstName, lastname=current_user.lastName))
 
-    return render_template('profile.html',
+    return render_template('profile/profile.html',
                            cur_object=current_user,
                            firstname=firstname,
                            lastname=lastname,
@@ -115,4 +115,4 @@ def reset_password():
         db.session.commit()
         flash('Your password has been changed!', category="success")
         return redirect(url_for('Profile.profile', firstname=current_user.firstName, lastname=current_user.lastName))
-    return render_template('reset.html', cur_object=current_user, reset_form=reset_form)
+    return render_template('profile/reset.html', cur_object=current_user, reset_form=reset_form)

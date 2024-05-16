@@ -24,7 +24,7 @@ class Config(object):
     # Flask-SQLAlchemy Config
     SQLALCHEMY_DATABASE_URI = os.environ.get('DB_URL')
 
-    # Account for administrator
+    # Account for admin
     ADMIN_ID = os.environ.get('ADMIN_ID')
     ADMIN_PASSWORD = os.environ.get('ADMIM_PASSWORD')
 

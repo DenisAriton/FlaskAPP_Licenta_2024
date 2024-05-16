@@ -1,14 +1,12 @@
-import os
-
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileRequired, FileSize, MultipleFileField, FileField
 from wtforms import StringField, PasswordField, SubmitField, ValidationError, TextAreaField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Regexp
 from .models import UserIdentification
-from .settings import verify_format_email
+from .usefull import verify_format_email
 from flask_login import current_user
 from os import listdir
-from datasets_handler import app
+from DatasetsFactory import app
 
 # https: // github.com / marcelomd / flask - wtf - login - example / blob / master / app / forms.py
 # https://github.com/toddbirchard/flasklogin-tutorial/blob/master/flask_login_tutorial/forms.py\
@@ -34,7 +32,7 @@ class SignUpForm(FlaskForm):
             Regexp(r'[a-zA-Z\s]+$', message='Please enter just your last name with letters only!')
         ],
         render_kw={"placeholder": "Enderson"})
-
+    # TODO: Trebuie pus un regex pe username, astfel incat sa nu existe niciun spatiu in input!
     username = StringField(
         'Username',
         validators=
@@ -42,7 +40,7 @@ class SignUpForm(FlaskForm):
             DataRequired(message='Please enter your username'),
             Length(min=6, message="Username must be greater than 6 characters")
         ],
-        render_kw={"placeholder": "Type your username"})
+        render_kw={"placeholder": "olgadevin23"})
 
     email = StringField(
         'Email',
@@ -130,6 +128,8 @@ class LoginForm(FlaskForm):
         if userdb:
             if userdb.check_password(keypass=field.data) is False:
                 raise ValidationError('Incorrect password!')
+        else:
+            raise ValidationError('Enter a corect UserID first!')
 
 
 class FileFolderDescription(FlaskForm):
@@ -147,7 +147,7 @@ class FileFolderDescription(FlaskForm):
         folder_name = field.data
         folders_list = listdir(app.config['DATASETS_PATH'])
         if folder_name in folders_list:
-            raise ValidationError(f'This name {folder_name} already exists!')
+            raise ValidationError(f'This name \'{folder_name}\' already exists!')
 
 
 class UploadFile(FlaskForm):
