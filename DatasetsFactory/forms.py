@@ -37,8 +37,9 @@ class SignUpForm(FlaskForm):
         'Username',
         validators=
         [
-            DataRequired(message='Please enter your username'),
-            Length(min=6, message="Username must be greater than 6 characters")
+            Regexp(r'^[^\s]+$', message='Your username can\'t be made of white spaces!'),
+            DataRequired(message='Please enter your username!'),
+            Length(min=6, message="Username must be greater than 6 characters!")
         ],
         render_kw={"placeholder": "olgadevin23"})
 
@@ -134,12 +135,18 @@ class LoginForm(FlaskForm):
 
 class FileFolderDescription(FlaskForm):
     file_description = TextAreaField(
-        'Add a description for dataset:',
+        'Add a description to your dataset:',
         render_kw={"placeholder": "This dataset contains values for iris dataset..."}
     )
+    # TODO: Trebuie pus un regex pe numele folderului, sa nu poata folosi alte caractere in afara de litere, numere si underline!
     file_folder = StringField(
         'Create a folder:',
-        render_kw={"placeholder": "Folder name"}
+        validators=
+        [
+            Regexp(r'^[a-zA-Z0-9_]+$',
+                   message="Enter a name which is made of letters, numbers and underline \'_\' !")
+        ],
+        render_kw={"placeholder": "FolderName"}
     )
     submit_folder = SubmitField('Save')
 
