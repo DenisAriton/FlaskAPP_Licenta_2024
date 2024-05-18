@@ -12,9 +12,9 @@ class UserIdentification(db.Model, UserMixin):
     lastName = mapped_column(VARCHAR(255), nullable=False)
     userName = mapped_column(VARCHAR(255), unique=True, nullable=False)
     email = mapped_column(VARCHAR(255), unique=True, nullable=False)
+    ImageName = mapped_column(VARCHAR(255), unique=True, nullable=True)
     keyPass = mapped_column(VARCHAR(255), unique=True, nullable=False)
     keyRole = mapped_column(VARCHAR(255), nullable=False, server_default='User')
-    ImageName = mapped_column(VARCHAR(255), unique=True, nullable=True)
     # Momentul inregistrarii
     timeRegistered = mapped_column(TIMESTAMP, nullable=False, server_default=text('CURRENT_TIMESTAMP'))
     # Momentul resetarii informatiilor personale
@@ -63,7 +63,7 @@ class UserGroup(db.Model):
     __tablename__ = "user_group"
     idUserGroup = mapped_column(Integer, primary_key=True, autoincrement=True, nullable=False)
     idUser = mapped_column(Integer, ForeignKey('user_identification.idUser'), unique=True, nullable=False)
-    idGroup = mapped_column(Integer, ForeignKey('groups.idGroup'), nullable=True)
+    idGroup = mapped_column(Integer, ForeignKey('groups.idGroup'), nullable=False)
     # Pentru acest tip de asociere, am creat o relatie de many-to-many bidirectionala!
     # Ca sa pot accesa toti userii asignati unei anumite grupe.
     groupsId = relationship("Groups", back_populates="userGr")
@@ -81,15 +81,28 @@ class UserSession(db.Model):
     idSession = mapped_column(Integer, primary_key=True, autoincrement=True, nullable=False)
     idUser = mapped_column(Integer, ForeignKey('user_identification.idUser'), nullable=False)
     # Momentul logarii
-    startTime = mapped_column(TIMESTAMP, nullable=False)
+    startTime = mapped_column(TIMESTAMP, nullable=False, server_default=text('CURRENT_TIMESTAMP'))
     # Momentul delogarii!
     endTime = mapped_column(TIMESTAMP, nullable=True)
 
 
+class Datasets(db.Model):
+    """
+    Acesta este un tabel care retine numele directoarelor(dataseturilor).
+    """
+    __tablename__ = "datasets"
+    idDataset = mapped_column(Integer, primary_key=True, autoincrement=True, nullable=False)
+    directory = mapped_column(VARCHAR(100), nullable=False, unique=True)
+    description = mapped_column(TEXT, nullable=True)
+    TimeCreated = mapped_column(TIMESTAMP, nullable=False, server_default=text('CURRENT_TIMESTAMP'))
+    dataset_files = relationship("FilesInDataset", back_populates="relation_dataset")
+    get_access = relationship("FileAccess", back_populates="datasets_access")
+
+
 class DataFiles(db.Model):
     """
-    Retinem datele specifice unui dataset!
-    nume, extensie, size, unitate de masura, relativePath, numar de coloane si linii, descriere, momentul upload-ului
+    Retinem datele specifice unui fisier!
+    nume, extensie, size, unitate de masura, relativePath, numar de coloane si linii, momentul upload-ului
     """
     __tablename__ = "data_files"
     idFile = mapped_column(Integer, primary_key=True, autoincrement=True, nullable=False)
@@ -100,29 +113,39 @@ class DataFiles(db.Model):
     relativePath = mapped_column(VARCHAR(255), nullable=True)
     columnNr = mapped_column(Integer, nullable=True)
     rowNr = mapped_column(Integer, nullable=True)
-    description = mapped_column(TEXT, nullable=True)
     uploadTime = mapped_column(TIMESTAMP, nullable=False)
-    access_grant = relationship("FileAccess", back_populates="files")
+    file_in_dataset = relationship("FilesInDataset", back_populates="relation_file")
     log_file = relationship("LogFile", back_populates="file_log")
+
+
+class FilesInDataset(db.Model):
+    """
+    Tabel relational intre fisiere si dataseturi, pentru a pastra ce fisiere sunt salvate intr-un anume dataset
+    """
+    __tablename__ = "files_in_dataset"
+    idFilesInDataset = mapped_column(Integer, primary_key=True, autoincrement=True, nullable=False)
+    idDataset = mapped_column(Integer, ForeignKey('datasets.idDataset'), nullable=False)
+    idFile = mapped_column(Integer, ForeignKey('data_files.idFile'), nullable=True)
+    relation_file = relationship("DataFiles", back_populates="file_in_dataset")
+    relation_dataset = relationship("Datasets", back_populates="dataset_files")
 
 
 class FileAccess(db.Model):
     """
     Acesta este un tabel care da drepturi de acces pe un anume fisier de date!
-    TODO: Ar trebui sa fie mai multe tipuri de drepturi ? - user si admin as zice!
     """
     __tablename__ = "file_access"
-    idAccess = mapped_column(Integer, primary_key=True, nullable=False)
-    idGroup = mapped_column(Integer, ForeignKey('groups.idGroup'))
-    idFile = mapped_column(Integer, ForeignKey('data_files.idFile'), nullable=False)
+    idAccess = mapped_column(Integer, primary_key=True, autoincrement=True, nullable=False)
+    idGroup = mapped_column(Integer, ForeignKey('groups.idGroup'), nullable=False)
+    idDataset = mapped_column(Integer, ForeignKey('datasets.idDataset'), nullable=False)
     keyAccess = mapped_column(Integer, nullable=True)
-    rightType = mapped_column(VARCHAR(25), nullable=True)  # Public sau la nivel de grup
-    # Momentul in care s-a dat access la fisier!
-    startTime = mapped_column(TIMESTAMP, nullable=False, server_default=text('CURRENT_TIMESTAMP'))
-    # Momentul cand s-a luat dreptul unui user la un fisier!
-    endTime = mapped_column(TIMESTAMP, nullable=True, server_default=text('NULL ON UPDATE CURRENT_TIMESTAMP'))
+    # Momentul in care s-a dat access la dataset!
+    TimeGetAccess = mapped_column(TIMESTAMP, nullable=True, server_default=text('CURRENT_TIMESTAMP'))
+    # Momentul in care s-a luat dreptul de acces pe dataset!
+    TimeTakeAccess = mapped_column(TIMESTAMP, nullable=True)
+
     groups = relationship("Groups", back_populates="file")
-    files = relationship("DataFiles", back_populates="access_grant")
+    datasets_access = relationship("Datasets", back_populates="get_access")
 
 
 class LogFile(db.Model):
@@ -133,8 +156,7 @@ class LogFile(db.Model):
     idLog = mapped_column(Integer, primary_key=True, nullable=False)
     idUser = mapped_column(Integer, ForeignKey('user_identification.idUser'), nullable=False)
     idFile = mapped_column(Integer, ForeignKey('data_files.idFile'), nullable=False)
-    # Momentul cand s-a accesat fisierul, iar daca exista o accesare de catre un anumit user pe un anumit fisier, facem update
-    # la timeAccess, deoarece ne intereseaza ultima accesare a fisierului
-    timeAccess = mapped_column(TIMESTAMP, nullable=False, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+    # Momentul cand s-a accesat fisierul
+    timeAccess = mapped_column(TIMESTAMP, nullable=False, server_default=text('CURRENT_TIMESTAMP'))
     user_log = relationship("UserIdentification", back_populates="relLog")
     file_log = relationship("DataFiles", back_populates="log_file")

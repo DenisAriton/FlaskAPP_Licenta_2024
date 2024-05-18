@@ -172,7 +172,7 @@ class UploadFile(FlaskForm):
 
 class ImageProfile(FlaskForm):
     image_up = FileField(
-        'Change Image',
+        'Change',
         validators=
         [
             FileRequired(message='Upload an image!'),
@@ -182,7 +182,7 @@ class ImageProfile(FlaskForm):
                         message='Images with these extensions are allowed! .jpeg, .jpg, .png !')
         ])
 
-    submit_image = SubmitField("Change Image")
+    submit_image = SubmitField("Change")
 
 
 class ProfileForm(FlaskForm):

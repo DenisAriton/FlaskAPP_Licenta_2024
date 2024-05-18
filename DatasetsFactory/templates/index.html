@@ -36,7 +36,7 @@
         <div class="container-fluid"> {# Container principal #}
           <div class="row" style="height: 100vh;"> {# Container de tip row pe intreh viewportul! #}
           {# Navbar de forma sidebar! #}
-            <div class="sidebar-box col-2 d-flex flex-column flex-shrink-0 p-3 bg-light" style="height: 100vh;">
+            <div class="sidebar-box col-2 d-flex flex-column flex-shrink-0 p-3 bg-light">
                 {# Imaginea si numele user-ului autentificat! #}
               {% if cur_object.ImageName %}
                   <div class="top-bar ">
@@ -74,12 +74,12 @@
                 </li>
                 <li>
                   <a href="" class="nav-link link-dark link-sidebar">
-                    <span class="material-symbols-outlined" >description</span>
+                    <span class="material-symbols-outlined" >folder_open</span>
                     Datasets
                   </a>
                 </li>
                 <li>
-                  <a href="{{ url_for('Datasets.select_folder') }}" class="nav-link link-dark link-sidebar">
+                  <a href="{{ url_for('Datasets.create_folder') }}" class="nav-link link-dark link-sidebar">
                     <span class="material-symbols-outlined" >Upload</span>
                     Upload
                   </a>
@@ -95,23 +95,25 @@
                 </li>
               </ul>
             </div>
-            <div class="col-10">
-              <div class="row justify-content-center align-items-center cont1" style="height:10vh;">
+
+            <div class="col-10" >
+              <div class="web-name-div row justify-content-center align-items-center" >
                 <h1 class="web-name"><span class="web-name-color-datasets">Datasets</span><span class="web-name-color-factory">Factory</span></h1>
               </div>
-              <div class="row" style="height:90vh;">
+              <div class="row">
                  {% block content %}
                      {# Flash messages! - vom mosteni prin super()#}
+                     <div class="row m-0 justify-content-center align-items-center">
                      {% with m = get_flashed_messages(with_categories = true) %}
                         {% if m %}
                             {% for category, mess in m %}
                                 {% if category == 'error' %}
-                                    <div class="alert alert-danger fade show d-flex justify-content-center align-items-center" role="alert">
+                                    <div class="error-div col-5 alert alert-danger fade show d-flex justify-content-center align-items-center m-0" role="alert">
                                         <span class="me-auto px-3">{{mess}}</span>
                                         <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="alert"></button>
                                     </div>
                                 {% else %}
-                                    <div class="alert alert-success fade show d-flex justify-content-center align-items-center" role="alert">
+                                    <div class="error-div col-5 alert alert-success fade show d-flex justify-content-center align-items-center m-0" role="alert">
                                         <span class="me-auto px-3">{{mess}}</span>
                                         <button type="button" class="btn-close" aria-label="Close"  data-bs-dismiss="alert"></button>
                                     </div>
@@ -119,9 +121,12 @@
                             {% endfor %}
                         {% endif %}
                     {% endwith %}
-                    {% block content_page %}
+                    </div>
+                     <div class="content-page row m-0">
+                        {% block content_page %}
                         {# Aici se introduce continutul paginilor! #}
-                    {% endblock %}
+                        {% endblock %}
+                     </div>
                  {% endblock %}
               </div>
             </div>
@@ -132,8 +137,9 @@
                 {#  Blocul dedicat doar partii de autentificare!  #}
                 <div class="context">
                     <div class="main">
-                        <h1 class="web-name"><span class="web-name-color-datasets">Datasets</span><span class="web-name-color-factory">Factory</span></h1>
-
+                        <div class="web-name-log">
+                            <h1 class="web-name-log"><span class="web-name-color-datasets">Datasets</span><span class="web-name-color-factory">Factory</span></h1>
+                        </div>
                         {% with m = get_flashed_messages(with_categories = true) %}
                             {% if m %}
                                 {% for category, mess in m %}

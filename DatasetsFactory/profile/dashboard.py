@@ -74,7 +74,7 @@ def profile(firstname, lastname):
             flash('Your profile has been updated!', category="success")
             return redirect(url_for('Profile.profile', firstname=current_user.firstName, lastname=current_user.lastName))
 
-    return render_template('profile/profile.html',
+    return render_template('profile/Dashboard.html',
                            cur_object=current_user,
                            firstname=firstname,
                            lastname=lastname,
@@ -115,4 +115,4 @@ def reset_password():
         db.session.commit()
         flash('Your password has been changed!', category="success")
         return redirect(url_for('Profile.profile', firstname=current_user.firstName, lastname=current_user.lastName))
-    return render_template('profile/reset.html', cur_object=current_user, reset_form=reset_form)
+    return render_template('profile/ResetPassword.html', cur_object=current_user, reset_form=reset_form)

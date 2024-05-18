@@ -14,9 +14,9 @@ import uuid
 datasets_blueprint = Blueprint('Datasets', __name__)
 
 
-@datasets_blueprint.route('Select-Folder', methods=['GET', 'POST'])
+@datasets_blueprint.route('create-folder', methods=['GET', 'POST'])
 @login_required
-def select_folder():
+def create_folder():
     form_folder = FileFolderDescription()
     if form_folder.validate_on_submit():
         folder_name = form_folder.file_folder.data
@@ -50,7 +50,6 @@ def upload_file():
                 new_file = DataFiles(fileName=os.path.splitext(file_name)[0], extension=os.path.splitext(file_name)[1])
                 db.session.add(new_file)
                 db.session.commit()
-                flash('Your files has been uploaded!', category="success")
             else:
                 exist = False
                 flash('Change the name of the file!', category="error")
@@ -73,6 +72,8 @@ def upload_file():
                     db.session.commit()
             else:
                 flash('Nu se incarca alte date despre fisier!', category="error")
+
+        flash('Your files has been uploaded!', category="success")
 
     files_view = DataFiles.query.all()
     return render_template('datasets/upload.html', upload=upload, files_view=files_view, cur_object=current_user)

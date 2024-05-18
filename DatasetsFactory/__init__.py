@@ -43,7 +43,8 @@ def create_app():
     app.register_blueprint(datasets.datasets_blueprint, url_prefix='/datasets')
 
     # Cream baza de date cu toate tabelele definite in ORM-ul models
-    from .models import UserIdentification, UserSession, DataFiles, LogFile, FileAccess, UserGroup, Groups
+    from .models import (UserIdentification, UserSession, DataFiles, LogFile, FileAccess, UserGroup, Groups, Datasets,
+                         FilesInDataset)
     with app.app_context():
         db.create_all()
 

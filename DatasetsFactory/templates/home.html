@@ -9,17 +9,15 @@
     {{ cur_object }}
     {% if cur_object.is_authenticated %}
         <h1>Welcome {{ cur_object.firstName }}!</h1>
-        <ul>
-            <li>First Name: {{ cur_object.firstName }}</li>
-            <li>Last Name: {{ cur_object.lastName }}</li>
-            <li>Username: {{ cur_object.userName }}</li>
-            <li>Email: {{ cur_object.email }}</li>
-            <li>Role: {{ cur_object.keyRole }}</li>
-            <li>Date: {{ cur_object.timeRegistered.date() }}</li>
-            <li>Hour: {{ cur_object.timeRegistered.time() }}</li>
-            <li>RelSession: {{ cur_object.relSession }}</li>
-            <li>ID: {{ cur_object.idUser }}</li>
-        </ul>
+            <p>First Name: {{ cur_object.firstName }}</p>
+            <p>Last Name: {{ cur_object.lastName }}</p>
+            <p>Username: {{ cur_object.userName }}</p>
+            <p>Email: {{ cur_object.email }}</p>
+            <p>Role: {{ cur_object.keyRole }}</p>
+            <p>Date: {{ cur_object.timeRegistered.date() }}</p>
+            <p>Hour: {{ cur_object.timeRegistered.time() }}</p>
+            <p>RelSession: {{ cur_object.relSession }}</p>
+            <p>ID: {{ cur_object.idUser }}</p>
     {% endif %}
 {% endblock %}
 

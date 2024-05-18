@@ -25,4 +25,6 @@
 * Modifica anumite denumiri ale template-urilor
 * Implementeaza restul de functionalitati: Upload dataset, Gestionare drepturi de acces, Modificarea bazei de date pentru adaugarea unui tabel Datasets
 * Mici modificari trecute sub forma de TODO-uri in cadrul proiectului
+### 18.05.2024 De continuat cu:
+* Profile page: trebuie stilizata pagina si de implementat la partea de update sa se poata modifica doar unul dintre inputuri(doar numele de exemplu sau toate, sau doar doua...)
 
