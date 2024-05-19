@@ -161,3 +161,83 @@ span.material-symbols-outlined:hover{
 	cursor: pointer;
 	color: #177199;
 }
+
+/* Stilizare pagina Datasets */
+.aliniaza-img{
+	display: flex;
+	align-items: center;
+	padding-left: 12px;
+	padding-right: 12px;
+}
+.aliniaza-close{
+	display: flex;
+	justify-content: center;
+}
+.x-padd{
+	margin-top: 10px ;
+	font-weight: bold;
+	height: fit-content;
+	border-radius: 50%;
+}
+.a-padd{
+	height: fit-content;
+	text-decoration: none;
+	color: rgba(255, 0, 0, 0.685) !important;
+}
+.a-padd:hover{
+	color:white !important;
+}
+.x-padd:hover{
+	transform: scale(1.2);
+	transition: 0.5s;
+	background-color: rgba(255, 0, 0, 0.438) !important;
+}
+.dataset-box{
+	background-color: rgb(219, 219, 219);
+}
+.text-inside{
+	width: fit-content;
+	height: 100px;
+	overflow-y:auto;
+}
+/* Search an dataset */
+.search-dataset-nav {
+	width: 150px;
+	box-sizing: border-box;
+	border: 2px solid rgba(57, 149, 255, 0.3);
+	border-radius: 4px;
+	font-size: 20px;
+	background-color: rgba(57, 149, 255, 0.3);
+	background-image:url('/static/images/search.svg');
+	background-position: 5px 50%;
+	background-repeat: no-repeat;
+	padding: 0 40px 0 40px;
+	-webkit-transition: width 0.4s ease-in-out;
+	transition: width 0.4s ease-in-out;
+}
+
+.search-dataset-nav:focus {
+	width: 50%;
+}
+/* Aliniere navbar dataset */
+div.bread-dataset{
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+ol.bread-dataset{
+	margin:0;
+	font-size: 25px;
+	width: fit-content;
+}
+nav.bread-nav{
+	width: fit-content;
+}
+/*Stilizare paginare*/
+nav.pagination{
+	width: fit-content;
+	padding: 0;
+	margin: 10px;
+}
+ul.pagination{
+	margin:0;
+}

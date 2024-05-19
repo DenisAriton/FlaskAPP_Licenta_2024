@@ -1,0 +1,75 @@
+{% extends 'index.html' %}
+{% block title %} Create Datasets {% endblock %}
+{#
+    - Se vor lista toate dataset-urile
+    - Fiecare dataset va fi un link catre un view_function care va lista toate fisierele detinute de acestea si va permite incarcarea unui fisier nou
+    - Editarea unui dataset va consta in : stergerea directorului dupa denumirea acestuia,
+    - Se va introduce paginarea: cate 10 dataseturi pe pagina - pagination from flask-sqlalchemy
+#}
+{% block content %}
+    {{ super() }}
+{% endblock %}
+
+{% block content_page %}
+    {# Un mic helper de cautare si creare de folder nou  #}
+    <div class="container-fluid">
+        <div class="row align-items-center justify-content-end">
+            <div class="col-12">
+                <div class="row justify-content-end align-items-center">
+                    <div class="col-1" style="display: flex; justify-content: center; align-items: center;">
+                        <a href="{{ url_for('Datasets.list_datasets') }}">
+                            <button id="CloseForm" class="btn btn-close" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Close page!"></button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="row bread-dataset justify-content-center align-items-center">
+              <nav class="bread-nav" aria-label="breadcrumb ">
+                <ol class="breadcrumb bread-dataset">
+                    <li class="breadcrumb-item active">Datasets</li>
+                    <li class="breadcrumb-item active"><a href=""></a></li>
+                </ol>
+              </nav>
+            </div>
+        </div>
+    </div>
+    <div id="Formular" class="container-fluid">
+        <div class="row">
+            <form id="CreateFolder" method="POST" action="{{ url_for('Datasets.create_folder') }}" novalidate>
+                {{ form_folder.csrf_token() }}
+                {% if form_folder.file_folder.errors %}
+                    {% for error in form_folder.file_folder.errors %}
+                        {{ form_folder.file_folder.label(class="form-label label-auth") }}
+                        {{ form_folder.file_folder(class="form-control is-invalid input-auth") }}
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    {{ form_folder.file_folder.label(class="form-label label-auth") }}
+                    {{ form_folder.file_folder(class="form-control is-valid input-auth") }}
+                {% endif %}
+
+                {% if form_folder.file_description.errors %}
+                    {% for error in form_folder.file_description.errors %}
+                        {{ form_folder.file_description.label(class="form-label label-auth") }}
+                        {{ form_folder.file_description(class="form-control is-invalid input-auth") }}
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    {{ form_folder.file_description.label(class="form-label label-auth") }}
+                    {{ form_folder.file_description(class="form-control is-valid input-auth") }}
+                {% endif %}
+            {{ form_folder.submit_folder(class='btn btn-outline-primary submit-auth', for="CreateFolder") }}
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js_cdn %}
+    {{ super() }}
+{% endblock %}
+
+

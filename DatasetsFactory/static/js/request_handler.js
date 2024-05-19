@@ -40,15 +40,3 @@ document.addEventListener("DOMContentLoaded", function (){
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
 const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 
-function togg(){
-    const data = document.getElementById()
-    for (let i=0;i<data.length;i++){
-        console.log(data);
-        if (data[i].style.display === "none"){
-            data[i].style.display = "block";
-        }else{
-            data[i].style.display = "none";
-        }
-    }
-
-    }

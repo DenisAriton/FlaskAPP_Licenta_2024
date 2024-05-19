@@ -1,9 +1,9 @@
-from flask import Blueprint, render_template, flash, url_for, redirect
+from flask import Blueprint, render_template, flash, url_for, redirect, request
 from flask_login import login_required, current_user
-from DatasetsFactory.forms import UploadFile, FileFolderDescription
+from DatasetsFactory.forms import UploadFile, FileFolderDescription, SearchItems
 from werkzeug.utils import secure_filename
 from DatasetsFactory import db, app
-from DatasetsFactory.models import DataFiles
+from DatasetsFactory.models import DataFiles, Datasets
 from DatasetsFactory.usefull import CreateDirectory
 from datetime import datetime
 import os
@@ -19,18 +19,81 @@ datasets_blueprint = Blueprint('Datasets', __name__)
 def create_folder():
     form_folder = FileFolderDescription()
     if form_folder.validate_on_submit():
-        folder_name = form_folder.file_folder.data
-        dataset_description = form_folder.file_description.data
-        app.config['DATASET_FOLDER'] = folder_name
-        app.config['DATASET_DESCRIPTION'] = dataset_description
-        mk_dir = CreateDirectory(path=app.config['DATASETS_PATH'], dir_name=app.config['DATASET_FOLDER'])
+        mk_dir = CreateDirectory(path=app.config['DATASETS_PATH'], dir_name=form_folder.file_folder.data)
         mk_dir.make_folder()
-        print(f'Folder name: {app.config['DATASET_FOLDER']}\nDescription: {app.config['DATASET_DESCRIPTION']}')
+
+        dataset_to_db = Datasets(directory=form_folder.file_folder.data, description=form_folder.file_description.data)
+        db.session.add(dataset_to_db)
+        db.session.commit()
+
+        flash(f'Folder {app.config['DATASET_FOLDER']} has been successfully created !', category='success')
+        return redirect(url_for('Datasets.list_datasets'))
+
+    return render_template('datasets/createfolder.html', cur_object=current_user, form_folder=form_folder)
+
+
+@datasets_blueprint.route('list-datasets', methods=['GET', 'POST'], defaults={'page': 1})
+@datasets_blueprint.route('list-datasets/page=<int:page>', methods=['GET', 'POST'])
+@login_required
+def list_datasets(page):
+    """
+    Acest view va fi de vizualizare, paginare si cautare!
+    :return: selectfolder.html
+    """
+    page = page
+    form_search = SearchItems()
+    datasets_folders = db.paginate(db.select(Datasets).order_by(Datasets.idDataset.desc()),
+                                   page=page,
+                                   per_page=9,
+                                   error_out=False)
+
+    dict_datasets = dict()
     folders_datasets = os.listdir(app.config['DATASETS_PATH'])
-    return render_template('datasets/selectfolder.html',
+    # Vom parcurge fiecare folder in parte pentru a avea acces la date si cream un dictionar de date
+    if folders_datasets:
+        for folder_name in folders_datasets:
+            db_dataset = Datasets.query.filter_by(directory=folder_name).first()
+            if db_dataset:
+                dict_datasets[db_dataset.directory] = [db_dataset.dataset_files, db_dataset]
+    # print(dict_datasets)
+    if form_search.search.data and form_search.validate_on_submit():
+        item_searched = form_search.search.data
+        print(item_searched)
+        datasets_folders = db.paginate(db.select(Datasets).filter_by(directory=item_searched),
+                                       per_page=9,
+                                       error_out=False)
+        print(datasets_folders.items)
+        for el in datasets_folders:
+            print(el)
+        return render_template('datasets/datasetsfolder.html',
+                               cur_object=current_user,
+                               dict_datasets=dict_datasets,
+                               items_per_page=datasets_folders,
+                               form_search=form_search)
+
+    return render_template('datasets/datasetsfolder.html',
                            cur_object=current_user,
-                           form_folder=form_folder,
-                           folders_datasets=folders_datasets)
+                           dict_datasets=dict_datasets,
+                           items_per_page=datasets_folders,
+                           form_search=form_search)
+
+
+@datasets_blueprint.route('delete-datasets/<int:idF>', methods=['GET'])
+@login_required
+def delete_datasets(idF):
+    db_dataset = Datasets.query.filter_by(idDataset=idF).first()
+    if db_dataset:
+        del_dir = CreateDirectory(path=app.config['DATASETS_PATH'], dir_name=db_dataset.directory)
+        del_dir.remove_dir()
+
+        db.session.delete(db_dataset)
+        db.session.commit()
+
+        flash('Dataset deleted!', category='success')
+    else:
+        flash('Something went wrong!', category='error')
+
+    return redirect(url_for('Datasets.list_datasets'))
 
 
 @datasets_blueprint.route('Upload', methods=['GET', 'POST'])

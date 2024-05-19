@@ -136,7 +136,11 @@ class LoginForm(FlaskForm):
 class FileFolderDescription(FlaskForm):
     file_description = TextAreaField(
         'Add a description to your dataset:',
-        render_kw={"placeholder": "This dataset contains values for iris dataset..."}
+        validators=
+        [
+            DataRequired(message='You have to enter a description for your dataset!')
+        ],
+        render_kw={"placeholder": "For example: This dataset contains values for iris dataset..."}
     )
     # TODO: Trebuie pus un regex pe numele folderului, sa nu poata folosi alte caractere in afara de litere, numere si underline!
     file_folder = StringField(
@@ -144,17 +148,31 @@ class FileFolderDescription(FlaskForm):
         validators=
         [
             Regexp(r'^[a-zA-Z0-9_]+$',
-                   message="Enter a name which is made of letters, numbers and underline \'_\' !")
+                   message="Enter a name which is made of letters, numbers and underline \'_\' !"),
+            DataRequired(message='You have to enter a name!')
         ],
         render_kw={"placeholder": "FolderName"}
     )
-    submit_folder = SubmitField('Save')
+    submit_folder = SubmitField('Create')
 
     def validate_file_folder(form, field):
         folder_name = field.data
         folders_list = listdir(app.config['DATASETS_PATH'])
         if folder_name in folders_list:
             raise ValidationError(f'This name \'{folder_name}\' already exists!')
+
+
+class SearchItems(FlaskForm):
+    search = StringField(
+        'Search...',
+        validators=
+        [
+            Regexp(r'^[a-zA-Z0-9_]+$',
+                   message="Enter a name which is made of letters, numbers and underline \'_\' !"),
+            DataRequired(message='You have to enter a name!')
+        ],
+        render_kw={"placeholder": "Search..."})
+
 
 
 class UploadFile(FlaskForm):
