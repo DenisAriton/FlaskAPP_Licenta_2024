@@ -1,21 +1,14 @@
-import re
+from flask import Blueprint, render_template, redirect, url_for, flash
+from flask_login import login_required, current_user
+from DatasetsFactory.forms import CreateGroup, SelectGroup
+from DatasetsFactory import db
+from DatasetsFactory.models import Groups
+
+admin_blueprint = Blueprint('admin', __name__)
 
 
-def verifica_username(username):
-    pattern = r'^[^\s]+$'
-    return re.match(pattern, username) is not None
+@admin_blueprint.route('groups', methods=['GET', 'POST'])
+@login_required
+def groups():
 
-
-def verifica_textul(text):
-    pattern = r'^[a-zA-Z0-9_]+$'
-    return re.match(pattern, text) is not None
-
-
-# Exemple de utilizare
-usernames = [" user123", "user 123", "user.name", "user@domain.com", "user_name", " use r @domain"]
-
-for username in usernames:
-    if verifica_username(username):
-        print(f'"{username}" este valid.')
-    else:
-        print(f'"{username}" nu este valid.')
+    return render_template('admin/groups.html')

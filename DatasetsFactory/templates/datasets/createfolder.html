@@ -14,22 +14,22 @@
     {# Un mic helper de cautare si creare de folder nou  #}
     <div class="container-fluid">
         <div class="row align-items-center justify-content-end">
+            <div class="row bread-dataset justify-content-center align-items-center">
+              <nav class="bread-nav" aria-label="breadcrumb ">
+                <ol class="breadcrumb bread-dataset">
+                    <li class="breadcrumb-item active"><a href="{{ url_for('Datasets.list_datasets') }}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Back to Datasets!">Datasets</a></li>
+                    <li class="breadcrumb-item active"><a href=""></a></li>
+                </ol>
+              </nav>
+            </div>
             <div class="col-12">
                 <div class="row justify-content-end align-items-center">
                     <div class="col-1" style="display: flex; justify-content: center; align-items: center;">
                         <a href="{{ url_for('Datasets.list_datasets') }}">
-                            <button id="CloseForm" class="btn btn-close" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Close page!"></button>
+                            <button id="CloseForm" class="btn btn-close" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Back to Datasets!"></button>
                         </a>
                     </div>
                 </div>
-            </div>
-            <div class="row bread-dataset justify-content-center align-items-center">
-              <nav class="bread-nav" aria-label="breadcrumb ">
-                <ol class="breadcrumb bread-dataset">
-                    <li class="breadcrumb-item active">Datasets</li>
-                    <li class="breadcrumb-item active"><a href=""></a></li>
-                </ol>
-              </nav>
             </div>
         </div>
     </div>
@@ -39,11 +39,22 @@
                 {{ form_folder.csrf_token() }}
                 {% if form_folder.file_folder.errors %}
                     {% for error in form_folder.file_folder.errors %}
-                        {{ form_folder.file_folder.label(class="form-label label-auth") }}
-                        {{ form_folder.file_folder(class="form-control is-invalid input-auth") }}
-                        <div class="invalid-feedback">
-                            {{ error }}
-                        </div>
+                        {# Aici mai facem o verificare ca sa nu apara de doua ori formularul cu input! #}
+                        {% if form_folder.file_folder.errors|length == 1 %}
+                            {{ form_folder.file_folder.label(class="form-label label-auth") }}
+                            {{ form_folder.file_folder(class="form-control is-invalid input-auth") }}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% else %}
+                            {% if loop.index == 1 %}
+                                {{ form_folder.file_folder.label(class="form-label label-auth") }}
+                                {{ form_folder.file_folder(class="form-control is-invalid input-auth") }}
+                            {% endif %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% endif %}
                     {% endfor %}
                 {% else %}
                     {{ form_folder.file_folder.label(class="form-label label-auth") }}

@@ -173,6 +173,10 @@ span.material-symbols-outlined:hover{
 	display: flex;
 	justify-content: center;
 }
+div.tb-close-center{
+	align-items: center;
+	width: auto;
+}
 .x-padd{
 	margin-top: 10px ;
 	font-weight: bold;
@@ -196,9 +200,10 @@ span.material-symbols-outlined:hover{
 	background-color: rgb(219, 219, 219);
 }
 .text-inside{
-	width: fit-content;
+	/*width: fit-content;*/
 	height: 100px;
 	overflow-y:auto;
+	overflow-x:auto;
 }
 /* Search an dataset */
 .search-dataset-nav {
@@ -240,4 +245,12 @@ nav.pagination{
 }
 ul.pagination{
 	margin:0;
+}
+/* Stilizare imagini fisiere */
+div.img-dimensiune-tabel{
+	width: fit-content;
+}
+img.img-resize-tabel{
+	width: 48px;
+	height: 48px;
 }

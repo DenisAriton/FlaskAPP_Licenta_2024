@@ -125,7 +125,7 @@ class FilesInDataset(db.Model):
     __tablename__ = "files_in_dataset"
     idFilesInDataset = mapped_column(Integer, primary_key=True, autoincrement=True, nullable=False)
     idDataset = mapped_column(Integer, ForeignKey('datasets.idDataset'), nullable=False)
-    idFile = mapped_column(Integer, ForeignKey('data_files.idFile'), nullable=True)
+    idFile = mapped_column(Integer, ForeignKey('data_files.idFile'), nullable=False)
     relation_file = relationship("DataFiles", back_populates="file_in_dataset")
     relation_dataset = relationship("Datasets", back_populates="dataset_files")
 

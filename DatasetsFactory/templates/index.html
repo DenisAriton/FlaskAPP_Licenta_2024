@@ -66,24 +66,34 @@
                       Home
                   </a>
                 </li>
-                <li>
-                  <a href="" class="nav-link link-dark link-sidebar">
-                    <span class="material-symbols-outlined" >group</span>
-                    Users
-                  </a>
-                </li>
+                {% if cur_object.keyRole == 'Admin' %}
+                    <li>
+                      <a href="" class="nav-link link-dark link-sidebar">
+                        <span class="material-symbols-outlined" >group</span>
+                        Users
+                      </a>
+                    </li>
+                    <li>
+                      <a href="" class="nav-link link-dark link-sidebar">
+                        <span class="material-symbols-outlined" >groups</span>
+                        Groups
+                      </a>
+                    </li>
+                {% endif %}
                 <li>
                   <a href="" class="nav-link link-dark link-sidebar">
                     <span class="material-symbols-outlined" >folder_open</span>
                     Datasets
                   </a>
                 </li>
-                <li>
-                  <a href="{{ url_for('Datasets.list_datasets') }}" class="nav-link link-dark link-sidebar">
-                    <span class="material-symbols-outlined" >Upload</span>
-                    Upload
-                  </a>
-                </li>
+                {% if cur_object.keyRole == 'Admin' %}
+                    <li>
+                      <a href="{{ url_for('Datasets.list_datasets') }}" class="nav-link link-dark link-sidebar">
+                        <span class="material-symbols-outlined" >Upload</span>
+                        Upload
+                      </a>
+                    </li>
+                {% endif %}
               </ul>
               <hr>
               <ul class="nav nav-pills flex-column mb-0">

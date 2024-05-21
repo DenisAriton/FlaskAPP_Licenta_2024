@@ -72,13 +72,15 @@ class CreateDirectory:
                 # sterge foldere care au in componenta sa alte documente, foldere etc.
                 # os.rmdir sterge doar foldere goale
                 rmtree(self.path_maker)
+                return False
             else:
                 print(f"Directory {self.dir_name} does\'t exist!")
+                return True
 
     def make_folder(self):
         """
         Creeaza un folder unde vor fi salvate fisierele
-        :return: Calea absoluta catre director
+        :return: True if exists, False if not
         """
         if self.dir_name == "default":
             # Verificam sa nu existe acel folder
@@ -90,6 +92,8 @@ class CreateDirectory:
         else:
             if os.path.exists(self.path_maker):
                 print(f'Directory {self.dir_name} has been already created!')
+                return True
             else:
                 os.mkdir(self.path_maker)
                 print(f"Directory {self.dir_name} has been successfully created!")
+                return False

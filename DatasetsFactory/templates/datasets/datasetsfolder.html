@@ -14,33 +14,33 @@
     {# Un mic helper de cautare si creare de folder nou  #}
     <div class="container-fluid">
         <div class="row align-items-center justify-content-center">
+            <div class="row bread-dataset justify-content-center align-items-center">
+              <nav class="bread-nav" aria-label="breadcrumb ">
+                <ol class="breadcrumb bread-dataset">
+                    <li class="breadcrumb-item active"><a href="{{ url_for('Datasets.list_datasets') }}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Back to root!">Datasets</a></li>
+                    <li class="breadcrumb-item active"></li>
+                </ol>
+              </nav>
+            </div>
             <div class="col-1" style="text-align: center">
               <a id="MakeFolder" class="img-create-folder" href="{{ url_for('Datasets.create_folder') }}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Make a new Dataset!">
                 <img src="{{ url_for('static', filename='images/add-folder.png') }}" alt="add-folder" width="48px" height="48px">
               </a>
             </div>
             <div class="col-11 p-1">
-              <form method="POST" action="{{ url_for('Datasets.list_datasets') }}" novalidate>
-                  {{ form_search.csrf_token() }}
-                  {% if form_search.search.errors %}
-                        {% for error in form_search.search.errors %}
-                            {{ form_search.search(class="form-control is-invalid search-dataset-nav") }}
-                            <div class="invalid-feedback">
-                                {{ error }}
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        {{ form_search.search(class="form-control search-dataset-nav") }}
-                    {% endif %}
-              </form>
-            </div>
-            <div class="row bread-dataset justify-content-center align-items-center">
-              <nav class="bread-nav" aria-label="breadcrumb ">
-                <ol class="breadcrumb bread-dataset">
-                    <li class="breadcrumb-item active"><a href="{{ url_for('Datasets.list_datasets') }}">Datasets</a></li>
-                    <li class="breadcrumb-item active"></li>
-                </ol>
-              </nav>
+                  <form method="POST" action="{{ url_for('Datasets.list_datasets') }}" novalidate>
+                      {{ form_search.csrf_token() }}
+                      {% if form_search.search.errors %}
+                            {% for error in form_search.search.errors %}
+                                {{ form_search.search(class="form-control is-invalid search-dataset-nav") }}
+                                <div class="invalid-feedback">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            {{ form_search.search(class="form-control search-dataset-nav") }}
+                        {% endif %}
+                  </form>
             </div>
         </div>
     </div>
@@ -56,11 +56,15 @@
                       {% for el in dict_datasets.values() %}
                           {% if el[0] == [] and dataset.directory == el[1].directory %}
                             <div class="col-md-3 aliniaza-img">
-                              <a href=""><img src="{{ url_for('static', filename='images/empty-folder.png') }}" class="img-fluid rounded-start" alt="folder"></a>
+                              <a href="{{ url_for('Datasets.upload_file', dataset_name=dataset.directory) }}">
+                                  <img src="{{ url_for('static', filename='images/empty-folder.png') }}" class="img-fluid rounded-start" alt="folder">
+                              </a>
                             </div>
                             <div class="col-md-8">
                                 <div class="card-body">
-                                    <h5 class="card-title"><a href="">{{ el[1].directory }}</a></h5>
+                                    <h5 class="card-title">
+                                        <a href="{{ url_for('Datasets.upload_file', dataset_name=dataset.directory) }}">{{ el[1].directory }}</a>
+                                    </h5>
                                     <div class="text-inside">
                                         <h6 class="card-title">Description of Dataset:</h6>
                                         <p class="card-text">{{ el[1].description }}</p>
@@ -69,23 +73,26 @@
                                 </div>
                             </div>
                             <div class="col-md-1 aliniaza-close">
-                                <span class="material-symbols-outlined x-padd"><a href="{{ url_for('Datasets.delete_datasets', idF=el[1].idDataset) }}" class="a-padd">close</a></span>
+                                <span class="material-symbols-outlined x-padd"><a href="{{ url_for('Datasets.delete_datasets', idfolder=el[1].idDataset) }}" class="a-padd">close</a></span>
                             </div>
                           {% elif el[0] != [] and dataset.directory == el[1].directory %}
                               <div class="col-md-3 aliniaza-img">
-                                <a href=""><img src="{{ url_for('static', filename='images/folder.png') }}" class="img-fluid rounded-start" alt="folder"></a>
+                                <a href="{{ url_for('Datasets.upload_file', dataset_name=dataset.directory) }}">
+                                    <img src="{{ url_for('static', filename='images/folder.png') }}" class="img-fluid rounded-start" alt="folder">
+                                </a>
                               </div>
                               <div class="col-md-8">
                                   <div class="card-body">
-                                      <h5 class="card-title"><a href="">{{ el[1].directory }}</a></h5>
+                                      <h5 class="card-title"><a href="{{ url_for('Datasets.upload_file', dataset_name=dataset.directory) }}">{{ el[1].directory }}</a></h5>
                                       <div class="text-inside">
                                           <h6 class="card-title">Description of Dataset:</h6>
                                           <p class="card-text">{{ el[1].description }}</p>
                                       </div>
+                                      <p class="card-text">Created at: {{ el[1].TimeCreated.date() }}</p>
                                   </div>
                               </div>
                               <div class="col-md-1 aliniaza-close">
-                                  <span class="material-symbols-outlined x-padd"><a href="{{ url_for('Datasets.delete_folder', idF=el[1].idDataset) }}" class="a-padd">close</a></span>
+                                  <span class="material-symbols-outlined x-padd"><a href="{{ url_for('Datasets.delete_datasets', idfolder=el[1].idDataset) }}" class="a-padd">close</a></span>
                               </div>
                           {% endif %}
                       {% endfor %}

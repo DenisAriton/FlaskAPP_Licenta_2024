@@ -1,0 +1,144 @@
+{# Aici va fi pagina ce va afisa grupele si va crea grupele #}
+{# Se va crea cate o grupa pe rand #}
+{# Se va lista pe pagini cate o grupa si fiecarei grupe si se vor afisa toti membrii sub forma de lista cu imagine, nume, cand s-a creat contul si cand s-a logat ultima data
+   - va fi un buton care va deasigna un membru de la grupa #}
+{% extends 'index.html' %}
+{% block title %} Groups {% endblock %}
+
+{% block content %}
+    {{ super() }}
+{% endblock %}
+
+{% block content_page %}
+    <div class="container-fluid">
+        <div class="row align-items-center justify-content-center">
+            {# Formular de creare grupe #}
+            <div class="row justify-content-start align-items-center">
+                <div class="col-3">
+                    <form id="UploadFiles" method="POST" action="{{ url_for('Datasets.upload_file', dataset_name=dataset_name) }}" enctype="multipart/form-data" novalidate>
+                        {{ upload.csrf_token() }}
+                        {% if upload.file_up.errors %}
+                            {% for error in upload.file_up.errors %}
+                                {{ upload.file_up.label(class="form-label label-auth") }}
+                                {{ upload.file_up(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% else %}
+                            {{ upload.file_up.label(class="form-label label-auth") }}
+                            {{ upload.file_up(class="form-control is-valid") }}
+                        {% endif %}
+                        {{ upload.submit_file(class='btn btn-outline-primary submit-auth', for="UploadFiles") }}
+                    </form>
+                </div>
+                <div class="col-6">
+                    <form method="POST" action="{{ url_for('Datasets.upload_file', dataset_name=dataset_name) }}" novalidate>
+                      {{ form_search.csrf_token() }}
+                      {% if form_search.search_file.errors %}
+                            {% for error in form_search.search_file.errors %}
+                                {{ form_search.search_file(class="form-control is-invalid search-dataset-nav") }}
+                                <div class="invalid-feedback">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            {{ form_search.search_file(class="form-control search-dataset-nav") }}
+                        {% endif %}
+                  </form>
+                </div>
+            </div>
+
+            <div class="col-2">
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-1" style="display: flex; justify-content: center; align-items: center;">
+                        <a href="{{ url_for('Datasets.list_datasets') }}">
+                            <button id="CloseForm" class="btn btn-close" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Close folder!"></button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row table-responsive-md">
+            <table class="table table-hover ">
+                  <thead>
+                        <tr>
+                              <th scope="col">Files</th>
+                              <th scope="col">Filename</th>
+                              <th scope="col">Size</th>
+                              <th scope="col">Relative Path</th>
+                              <th scope="col">Number of columns</th>
+                              <th scope="col">Number of rows</th>
+                              <th scope="col">Upload Date</th>
+                              <th scope="col">Delete</th>
+                        </tr>
+                  </thead>
+                  <tbody>
+                  {% if items_per_page %}
+                        {% for file in items_per_page %}
+                                    <tr>
+                                        <th scope="row" >
+                                            <div class="aliniaza-img img-dimensiune-tabel">
+                                                <a href="#">
+                                                    <img src="{{ url_for('static', filename='images/txt.png') }}" class="img-resize-tabel img-fluid rounded-start" alt="folder">
+                                                </a>
+                                            </div>
+                                        </th>
+                                        <td >{{ file.relation_file.fileName.split('_')[1] }}</td>
+                                        <td >{{ file.relation_file.size ~ file.relation_file.sizeUnit}}</td>
+                                        <td >{{ file.relation_file.relativePath}}</td>
+                                        <td >{{ file.relation_file.columnNr}}</td>
+                                        <td >{{ file.relation_file.rowNr}}</td>
+                                        <td >{{ file.relation_file.uploadTime.date() }}</td>
+                                        <td >
+                                            <div class="col-md-1 aliniaza-close tb-close-center">
+                                                <span class="material-symbols-outlined x-padd">
+                                                    <a href="{{ url_for('Datasets.delete_file', id_file=file.relation_file.idFile, dataset_name=dataset_name) }}" class="a-padd">close</a>
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                        {% endfor %}
+                  {% endif %}
+                  </tbody>
+            </table>
+        </div> {# row table #}
+        <div class="row justify-content-center align-items-center">
+            {#  Pagination - 12 dataseturi pe pagina!  #}
+            <nav class="pagination" aria-label="Page navigation example">
+              <ul class="pagination">
+                {% if items_per_page.has_prev %}
+                    <li class="page-item">
+                      <a class="page-link" href="{{ url_for('Datasets.upload_file',dataset_name=dataset_name ,page=items_per_page.prev_num) }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                      </a>
+                    </li>
+                {% endif %}
+                {% for page in items_per_page.iter_pages(left_edge=2, right_edge=2) %}
+                    {% if page %}
+                        {% if page == items_per_page.page %}
+                            <li class="page-item active"><a class="page-link" href="{{ url_for('Datasets.upload_file', dataset_name=dataset_name, page=page) }}">{{ page }}</a></li>
+                        {% else %}
+                            <li class="page-item"><a class="page-link" href="{{ url_for('Datasets.upload_file', dataset_name=dataset_name, page=page) }}">{{ page }}</a></li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if items_per_page.has_next %}
+                    <li class="page-item">
+                      <a class="page-link" href="{{ url_for('Datasets.upload_file', dataset_name=dataset_name, page=items_per_page.next_num) }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                      </a>
+                    </li>
+                {% endif %}
+              </ul>
+            </nav>
+        </div> {# footer-ul cu paginarea #}
+    </div> {# Container-fluid #}
+{% endblock %}
+
+{% block js_cdn %}
+    {{ super() }}
+{% endblock %}

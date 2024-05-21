@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileRequired, FileSize, MultipleFileField, FileField
-from wtforms import StringField, PasswordField, SubmitField, ValidationError, TextAreaField
+from wtforms import StringField, PasswordField, SubmitField, ValidationError, TextAreaField, RadioField
+from wtforms_sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Regexp
-from .models import UserIdentification
+from .models import UserIdentification, Groups
 from .usefull import verify_format_email
 from flask_login import current_user
 from os import listdir
@@ -147,8 +148,8 @@ class FileFolderDescription(FlaskForm):
         'Create a folder:',
         validators=
         [
-            Regexp(r'^[a-zA-Z0-9_]+$',
-                   message="Enter a name which is made of letters, numbers and underline \'_\' !"),
+            Regexp(r'^[a-z0-9_]+$',
+                   message="Enter a name which is made of small letters, numbers and underline \'_\' !"),
             DataRequired(message='You have to enter a name!')
         ],
         render_kw={"placeholder": "FolderName"}
@@ -159,24 +160,32 @@ class FileFolderDescription(FlaskForm):
         folder_name = field.data
         folders_list = listdir(app.config['DATASETS_PATH'])
         if folder_name in folders_list:
-            raise ValidationError(f'This name \'{folder_name}\' already exists!')
+            raise ValidationError(f'This dataset \'{folder_name}\' already exists!')
 
 
 class SearchItems(FlaskForm):
     search = StringField(
-        'Search...',
+        'Search',
         validators=
         [
             Regexp(r'^[a-zA-Z0-9_]+$',
                    message="Enter a name which is made of letters, numbers and underline \'_\' !"),
             DataRequired(message='You have to enter a name!')
         ],
-        render_kw={"placeholder": "Search..."})
+        render_kw={"placeholder": "Search folders..."})
 
+
+class SearchFiles(FlaskForm):
+    search_file = StringField(
+        'Search',
+        validators=
+        [
+            DataRequired(message='You have to enter a name!')
+        ],
+        render_kw={"placeholder": "Search files..."})
 
 
 class UploadFile(FlaskForm):
-
     file_up = MultipleFileField(
         'Upload File',
         validators=
@@ -191,7 +200,7 @@ class UploadFile(FlaskForm):
     submit_file = SubmitField("Upload")
 
     def validate_file_up(form, field):
-        if field.data and len(field.data) >= 5:
+        if field.data and len(field.data) > 5:
             raise ValidationError('Just 5 files are allowed!')
 
 
@@ -301,3 +310,33 @@ class ResetPassword(FlaskForm):
         if current_user:
             if current_user.check_password(keypass=data_form):
                 raise ValidationError('The new password can\'t be similar to old password!')
+
+
+class CreateGroup(FlaskForm):
+    group_name = StringField(
+        'Group Name',
+        validators=
+        [
+            Regexp(r'^[A-Za-z0-9]+$', message='Group name must contain only letters and numbers !'),
+            DataRequired(message='Enter a group name first!'),
+
+        ],
+        render_kw={'placeholder': 'Create a new group...'})
+
+    def validate_group_name(form, field):
+        group_db = Groups.query.filter_by(groupName=field.data).first()
+        if group_db:
+            raise ValidationError(f'This group name \'{field.data}\' already exists!')
+
+
+class SelectGroup(FlaskForm):
+    group_id = QuerySelectField('Group',
+                                query_factory=Groups.query.all,
+                                get_label='groupName',
+
+                                validators=
+                                [
+                                    DataRequired(message='Select a group before submitting!')
+                                ],
+                                render_kw={'placeholder': 'Select a group...'})
+    user_id = RadioField('userID')

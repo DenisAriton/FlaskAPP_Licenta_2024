@@ -36,11 +36,13 @@ def create_app():
     from .views import routes
     from DatasetsFactory.profile import dashboard
     from DatasetsFactory.datasets import datasets
+    from DatasetsFactory.administrator import admin
     app.register_blueprint(login.login_blueprint, url_prefix='/')
     app.register_blueprint(signup.signup_blueprint, url_prefix='/authentication')
     app.register_blueprint(routes.routes_blueprint, url_prefix='/routes')
     app.register_blueprint(dashboard.profile_blueprint, url_prefix='/dashboard')
     app.register_blueprint(datasets.datasets_blueprint, url_prefix='/datasets')
+    app.register_blueprint(admin.admin_blueprint, url_prefix='/admin')
 
     # Cream baza de date cu toate tabelele definite in ORM-ul models
     from .models import (UserIdentification, UserSession, DataFiles, LogFile, FileAccess, UserGroup, Groups, Datasets,

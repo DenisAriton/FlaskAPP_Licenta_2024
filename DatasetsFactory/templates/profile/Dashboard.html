@@ -51,45 +51,46 @@
             </div>
         </div>
     </div>
-    <a href="{{ url_for('Profile.reset_password') }}" class="btn btn-primary">Change Password</a>
-    <form id="profileForm" method="POST" action="{{url_for('Profile.profile', firstname=firstname, lastname=lastname)}}" novalidate >
-        {{ profile_form.csrf_token }}
-        {{ profile_form.firstname.label()}}
-        {{ profile_form.firstname(class="form-control") }}
-        {% if profile_form.firstname.errors %}
-            {% for error in profile_form.firstname.errors %}
-                <div class="alert alert-danger fade show d-flex justify-content-center align-items-center" role="alert">
-                    <span class="me-auto px-3">{{ error }}</span>
-                    <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
+    {% if cur_object.keyRole == 'User' %}
+        <a href="{{ url_for('Profile.reset_password') }}" class="btn btn-primary">Change Password</a>
+        <form id="profileForm" method="POST" action="{{url_for('Profile.profile', firstname=firstname, lastname=lastname)}}" novalidate >
+            {{ profile_form.csrf_token }}
+            {{ profile_form.firstname.label()}}
+            {{ profile_form.firstname(class="form-control") }}
+            {% if profile_form.firstname.errors %}
+                {% for error in profile_form.firstname.errors %}
+                    <div class="alert alert-danger fade show d-flex justify-content-center align-items-center" role="alert">
+                        <span class="me-auto px-3">{{ error }}</span>
+                        <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
 
-        {{ profile_form.lastname.label()}}
-        {{ profile_form.lastname(class="form-control") }}
-        {% if profile_form.lastname.errors %}
-            {% for error in profile_form.lastname.errors %}
-                <div class="alert alert-danger fade show d-flex justify-content-center align-items-center" role="alert">
-                    <span class="me-auto px-3">{{ error }}</span>
-                    <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
+            {{ profile_form.lastname.label()}}
+            {{ profile_form.lastname(class="form-control") }}
+            {% if profile_form.lastname.errors %}
+                {% for error in profile_form.lastname.errors %}
+                    <div class="alert alert-danger fade show d-flex justify-content-center align-items-center" role="alert">
+                        <span class="me-auto px-3">{{ error }}</span>
+                        <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
 
-        {{ profile_form.email.label()}}
-        {{ profile_form.email(class="form-control") }}
-        {% if profile_form.email.errors %}
-            {% for error in profile_form.email.errors %}
-                <div class="alert alert-danger fade show d-flex justify-content-center align-items-center" role="alert">
-                    <span class="me-auto px-3">{{ error }}</span>
-                    <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
+            {{ profile_form.email.label()}}
+            {{ profile_form.email(class="form-control") }}
+            {% if profile_form.email.errors %}
+                {% for error in profile_form.email.errors %}
+                    <div class="alert alert-danger fade show d-flex justify-content-center align-items-center" role="alert">
+                        <span class="me-auto px-3">{{ error }}</span>
+                        <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
 
-        {{ profile_form.submit(class='btn btn-secondary', for="profileForm") }}
-    </form>
-
+            {{ profile_form.submit(class='btn btn-secondary', for="profileForm") }}
+        </form>
+    {% endif %}
     <form id="FormImage" method="POST" enctype="multipart/form-data" action="{{url_for('Profile.profile', firstname=firstname, lastname=lastname)}}" novalidate >
                         {{ image_form.csrf_token }}
                         {{ image_form.image_up(class="form-control", id="InputImage") }}
