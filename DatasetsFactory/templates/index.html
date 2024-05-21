@@ -80,13 +80,30 @@
                       </a>
                     </li>
                 {% endif %}
+              {% if cur_object.keyRole == 'User' %}
                 <li>
+                {# Pentru useri se va randa VisibleFiles template, iar aici vor fi listate toate fisierele sub forma de tabel cu paginatie, dar cu specificarea datasetului din care face parte #}
+                  <a href="" class="nav-link link-dark link-sidebar">
+                    <span class="material-symbols-outlined" >folder_open</span>
+                    Files
+                  </a>
+                </li>
+                <li>
+                {# Pentru useri se va randa datasets_user template, iar aici vor fi listate toate datseturile la fel ca pentru admin, fara drepturi de creare sau stergere, doar vizualizare #}
                   <a href="" class="nav-link link-dark link-sidebar">
                     <span class="material-symbols-outlined" >folder_open</span>
                     Datasets
                   </a>
                 </li>
+              {% endif %}
                 {% if cur_object.keyRole == 'Admin' %}
+                    <li>
+                    {# Va fi un alt template randat aici din admin - datasets_privileges pentru acordare de privilegii pe seturi de date #}
+                      <a href="" class="nav-link link-dark link-sidebar">
+                        <span class="material-symbols-outlined" >folder_open</span>
+                        Datasets
+                      </a>
+                    </li>
                     <li>
                       <a href="{{ url_for('Datasets.list_datasets') }}" class="nav-link link-dark link-sidebar">
                         <span class="material-symbols-outlined" >Upload</span>
