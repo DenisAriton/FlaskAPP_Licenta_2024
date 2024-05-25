@@ -3,7 +3,7 @@
 {# Se va lista pe pagini cate o grupa si fiecarei grupe si se vor afisa toti membrii sub forma de lista cu imagine, nume, cand s-a creat contul si cand s-a logat ultima data
    - va fi un buton care va deasigna un membru de la grupa #}
 {% extends 'index.html' %}
-{% block title %} Groups {% endblock %}
+{% block title %} Found Groups {% endblock %}
 
 {% block content %}
     {{ super() }}
@@ -15,49 +15,16 @@
         <div class="row bread-dataset justify-content-center align-items-center">
               <nav class="bread-nav" aria-label="breadcrumb ">
                 <ol class="breadcrumb bread-dataset">
-                    <li class="breadcrumb-item "><a href="{{ url_for('Admin.create_group') }}" style="text-decoration: none; color: grey;">Groups</a></li>
+                    <li class="breadcrumb-item ">
+                        <a href="{{ url_for('Admin.create_group') }}" style="text-decoration: none; color: grey;" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Go to Groups!">
+                            Found Groups
+                        </a>
+                    </li>
                 </ol>
               </nav>
         </div>
-        {# Formularele: de creare grupa si cautare! #}
-        <div class="row align-items-center justify-content-center ">
-            {# Formular de creare grupe #}
-            <div class="col-4">
-                <form id="CreateGroup" method="POST" action="{{ url_for('Admin.create_group') }}" novalidate>
-                    {{ form_group.csrf_token() }}
-                    {% if form_group.group_name.errors %}
-                        {% for error in form_group.group_name.errors %}
-                            {{ form_group.group_name.label(class="form-label label-auth") }}
-                            {{ form_group.group_name(class="form-control is-invalid") }}
-                            <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                    {% else %}
-                        {{ form_group.group_name.label(class="form-label label-auth") }}
-                        {{ form_group.group_name(class="form-control is-valid") }}
-                    {% endif %}
-                    {# Daca nu merge din enter, vom adauga submit button! #}
-                </form>
-            </div>
-            <div class="col-8" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="You can search just after name: departament, or department_group!">
-                <form method="POST" action="{{ url_for('Admin.create_group') }}" novalidate>
-                  {{ form_search.csrf_token() }}
-                  {% if form_search.search_group.errors %}
-                        {% for error in form_search.search_group.errors %}
-                            {{ form_search.search_group.label(class="form-label label-auth") }}
-                            {{ form_search.search_group(class="form-control is-invalid search-dataset-nav") }}
-                            <div class="invalid-feedback">
-                                {{ error }}
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        {{ form_search.search_group.label(class="form-label label-auth") }}
-                        {{ form_search.search_group(class="form-control search-dataset-nav") }}
-                    {% endif %}
-              </form>
-            </div>
-        </div>
     </div>
-{% if exit_items %}
+
     <div class="container-fluid g-3">
         <div class="row table-responsive-md justify-content-center align-items-center">
             <table class="table table-hover align-middle" style="width: 98%;">
@@ -121,9 +88,10 @@
             {# Pagination - 12 dataseturi pe pagina!  #}
             <nav class="pagination" aria-label="Page navigation example">
                 <ul class="pagination">
+
                     {% if items_per_page.has_prev %}
                         <li class="page-item">
-                          <a class="page-link" href="{{ url_for('Admin.create_group', page=items_per_page.prev_num) }}" aria-label="Previous">
+                          <a class="page-link" href="{{ url_for('Admin.search_group', item_searched=item ,page=items_per_page.prev_num) }}" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                           </a>
                         </li>
@@ -132,9 +100,9 @@
                     {% for page in items_per_page.iter_pages(left_edge=2, right_edge=2) %}
                         {% if page %}
                             {% if page == items_per_page.page %}
-                                <li class="page-item active"><a class="page-link" href="{{ url_for('Admin.create_group', page=page) }}">{{ page }}</a></li>
+                                <li class="page-item active"><a class="page-link" href="{{ url_for('Admin.search_group', item_searched=item, page=page) }}">{{ page }}</a></li>
                             {% else %}
-                                <li class="page-item"><a class="page-link" href="{{ url_for('Admin.create_group', page=page) }}">{{ page }}</a></li>
+                                <li class="page-item"><a class="page-link" href="{{ url_for('Admin.search_group', item_searched=item, page=page) }}">{{ page }}</a></li>
                             {% endif %}
                         {% else %}
                             <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
@@ -143,7 +111,7 @@
 
                     {% if items_per_page.has_next %}
                         <li class="page-item">
-                          <a class="page-link" href="{{ url_for('Admin.create_group', page=items_per_page.next_num) }}" aria-label="Next">
+                          <a class="page-link" href="{{ url_for('Admin.search_group',item_searched=item ,page=items_per_page.next_num) }}" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                           </a>
                         </li>
@@ -152,18 +120,8 @@
             </nav>
         </div> {# footer-ul cu paginarea #}
     </div> {# Container-fluid #}
-{% else %}
-    <div class="container-fluid g-3">
-        <div class="row justify-content-center ">
-            <div class="col-6 p-1">
-                <h3 style="text-align: center; color:grey;">There is no group created!</h3>
-            </div>
-        </div>
-    </div>
-{% endif %}
 {% endblock %}
 
 {% block js_cdn %}
     {{ super() }}
 {% endblock %}
-

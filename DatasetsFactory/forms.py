@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileRequired, FileSize, MultipleFileField, FileField
-from wtforms import StringField, PasswordField, SubmitField, ValidationError, TextAreaField, RadioField
-from wtforms_sqlalchemy.fields import QuerySelectField
+from wtforms import StringField, PasswordField, SubmitField, ValidationError, TextAreaField, RadioField, SelectField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Regexp
 from .models import UserIdentification, Groups
 from .usefull import verify_format_email
@@ -191,10 +190,10 @@ class UploadFile(FlaskForm):
         validators=
         [
             FileRequired(message='Upload a file!'),
-            FileSize(max_size=25 * 1024 * 1024,
-                     message="File's size must be less than 25MB!"),
+            FileSize(max_size=150 * 1024 * 1024,
+                     message="File's size must be less than 150MB!"),
             FileAllowed(['txt', 'csv', 'xlsx', 'pdf', 'docx', 'doc'],
-                        message='Files with these extensions are allowed! .pdf, .txt, .csv, .doc, .xlxs')
+                        message='Files with these extensions are allowed! .pdf, .txt, .csv, .doc, .docx, .xlxs')
         ])
 
     submit_file = SubmitField("Upload")
@@ -317,7 +316,8 @@ class CreateGroup(FlaskForm):
         'Group Name',
         validators=
         [
-            Regexp(r'^[A-Za-z0-9]+$', message='Group name must contain only letters and numbers !'),
+            Regexp(r'^[A-Za-z0-9_]+$',
+                   message='Enter a name which is made of lowercase, uppercase letters, underline \'_\' and numbers!'),
             DataRequired(message='Enter a group name first!'),
 
         ],
@@ -329,14 +329,46 @@ class CreateGroup(FlaskForm):
             raise ValidationError(f'This group name \'{field.data}\' already exists!')
 
 
-class SelectGroup(FlaskForm):
-    group_id = QuerySelectField('Group',
-                                query_factory=Groups.query.all,
-                                get_label='groupName',
+class EditGroup(FlaskForm):
+    name = StringField(
+        'Edit Name',
+        validators=
+        [
+            Regexp(r'^[A-Za-z0-9_]+$',
+                   message='Enter a name which is made of lowercase, uppercase letters, underline \'_\' and numbers!'),
+            DataRequired(message='Enter a group name first!'),
 
-                                validators=
-                                [
-                                    DataRequired(message='Select a group before submitting!')
-                                ],
-                                render_kw={'placeholder': 'Select a group...'})
-    user_id = RadioField('userID')
+        ],
+        render_kw={'placeholder': 'Edit name'})
+    submit_edit = SubmitField('Save')
+
+    def validate_name(form, field):
+        group_db = Groups.query.filter_by(groupName=field.data).first()
+        if group_db:
+            raise ValidationError(f'This group name \'{field.data}\' already exists!')
+
+
+class SearchGroup(FlaskForm):
+    search_group = StringField(
+        'Search group',
+        validators=
+        [
+            Regexp(r'^[a-zA-Z0-9_]+$',
+                   message="Enter a name which is made of lowercase, uppercase letters, underline \'_\' and numbers!"),
+            DataRequired(message='You have to enter a name!')
+        ],
+        render_kw={"placeholder": "Search group..."})
+
+
+class SelectGroup(FlaskForm):
+    group_id = SelectField(
+        'Group',
+        validators=
+        [
+            DataRequired(message='Select a group before submitting!')
+        ],
+        render_kw={'placeholder': 'Select a group...'})
+
+    radio_user = RadioField('ID_User')
+    submit_group = SubmitField('Save')
+

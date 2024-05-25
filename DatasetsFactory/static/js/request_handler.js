@@ -29,14 +29,24 @@ document.addEventListener("DOMContentLoaded", function (){
             });
     }
 
+
     document.getElementById('delete-image').addEventListener('click', deleteImage);
     // Facem autosubmit pentru formularul de UploadImage
     document.getElementById('InputImage').addEventListener('input',function(){
         document.getElementById('FormImage').submit();
     });
 });
-
+function toogle_edit(id_group){
+    const div_edit = document.getElementById(id_group);
+    if (div_edit.style.display === 'none'){
+        div_edit.style.display = 'block';
+    }else if (div_edit.style.display === 'block'){
+        div_edit.style.display = 'none';
+    }
+}
 // Trigger de tooltip! Daca nu functioneaza aici, il vom introduce in template-uri!
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
 const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+
 

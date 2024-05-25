@@ -47,7 +47,6 @@ def list_datasets(page):
                                    page=page,
                                    per_page=9,
                                    error_out=False)
-
     dict_datasets = dict()
     folders_datasets = os.listdir(app.config['DATASETS_PATH'])
     # Vom parcurge fiecare folder care este creat local in parte pentru a avea acces la date si cream un dictionar de date
@@ -58,11 +57,9 @@ def list_datasets(page):
             db_dataset = Datasets.query.filter_by(directory=folder_name).first()
             if db_dataset:
                 dict_datasets[db_dataset.directory] = [db_dataset.dataset_files, db_dataset]
-
     # Gestionam Search engine-ul
     if form_search.search.data and form_search.validate_on_submit():
         item_searched = form_search.search.data
-        print(f'Search= {item_searched}')
         verify_exist_dataset = Datasets.query.order_by(Datasets.idDataset.desc()).filter(Datasets.directory.contains(item_searched))
         list_of_folders = list()
         # Preluam toate id-urile dataseturilor care corespund sirului cautat
@@ -70,6 +67,7 @@ def list_datasets(page):
             list_of_folders.append(el.idDataset)
         if verify_exist_dataset:
             datasets_folders = db.paginate(db.select(Datasets).filter(Datasets.idDataset.in_(list_of_folders)),
+                                           page=page,
                                            per_page=9,
                                            error_out=False)
             return render_template('datasets/datasetsfolder.html',
@@ -90,30 +88,29 @@ def list_datasets(page):
 @datasets_blueprint.route('delete-datasets/<int:idfolder>', methods=['GET'])
 @login_required
 def delete_datasets(idfolder):
+    # Cautam dataset-ul care se doreste a fi sters
     db_dataset = Datasets.query.filter_by(idDataset=idfolder).first()
+    # Cautam asocierile
     db_file_in_dataset = FilesInDataset.query.filter_by(idDataset=db_dataset.idDataset).all()
-
+    # Daca datasetul exista atunci se va sterge
     if db_dataset:
+        # Stergem din folder
         del_dir = CreateDirectory(path=app.config['DATASETS_PATH'], dir_name=db_dataset.directory)
         del_dir.remove_dir()
-        # TODO: Trebuie avut in vedere ca va trebui inainte sa stergem un fisier sau folder trebuie sterse si toate asocierile cu celelalte tabele!!
-        # TODO: Datasets are legatura cu urmatoarele tabele - FilesInDataset, FileAccess
-        # TODO: DataFiles are legatura cu urmatoarele tabele - FilesInDataset, LogFile
-        # TODO: Astfel ca la final cand se va sterge un dataset, se vor sterge toate legaturile intai si apoi datasetul.
-        # Se sterg toate aparitiile datasetului in FilesInDataset, deoarece cand un folder se sterge,
-        # va sterge tot ce are in componenta lui
+        # TODO: Mai trebuie dupa implementarea drepturilor pe dataseturi sa se stearga datele si din tabelele asociate
+        # Se sterg toate aparitiile datasetului in FilesInDataset
         if db_file_in_dataset:
             for el in db_file_in_dataset:
                 db_files = DataFiles.query.filter_by(idFile=el.idFile).first()
                 db.session.delete(db_files)  # Stergem fisierul din DataFiles
                 db.session.delete(el)  # Stergem fisierul din FilesInDataset
-
+        # Sterge din tabelul asociat datasetului
         db.session.delete(db_dataset)
+        flash(f'Dataset {db_dataset.directory} has been deleted!', category='success')
+        # Facem commit-ul dupa mesaj ca sa afisam numele
         db.session.commit()
-
-        flash('Dataset deleted!', category='success')
     else:
-        flash('Something went wrong!', category='error')
+        flash('No dataset found!', category='error')
 
     return redirect(url_for('Datasets.list_datasets'))
 
@@ -123,16 +120,17 @@ def delete_datasets(idfolder):
 def upload_file(dataset_name):
     # Desemnam pagina principala si facem o cerere a paginii care ar urma
     page = request.args.get('page', 1, type=int)
-    print(f'Page: {page}')
+    # Ne trebuie aceasta in caz se va nimeri sa fie vreun nume la fel, sa nu primim erori!
     exist = True
     upload = UploadFile()
     form_search = SearchFiles()
     id_dataset = Datasets.query.filter_by(directory=dataset_name).first()
+
     # Doar daca s-a facut submit pe butonul de upload atunci sa gestioneze formularul de upload, altfel nu
     if upload.submit_file.data:
         if upload.validate_on_submit():
             for file in upload.file_up.data:
-                file_name = str(uuid.uuid4()) + "_" + secure_filename(file.filename)
+                file_name = str(uuid.uuid4()) + "^%20%^" + secure_filename(file.filename)
                 # Se va cauta dupa nume in db fara extensie daca exista aceasta denumire
                 file_db = DataFiles.query.filter_by(fileName=os.path.splitext(file_name)[0]).first()
                 if file_db is None:
@@ -154,15 +152,22 @@ def upload_file(dataset_name):
                         name = file_exist.fileName + file_exist.extension
                         # Cream relative_path
                         relative_path_file = str(os.path.join(dataset_name, name))
-                        print(f'Calea relativa: {relative_path_file}\nTipul de date: {type(relative_path_file)}')
                         # preluam marimea fisierului in bytes
-                        get_size = os.stat(os.path.join(app.config['DATASETS_PATH'], relative_path_file)).st_size
+                        abs_path_to_file = os.path.join(app.config['DATASETS_PATH'], relative_path_file)
+                        get_size = os.stat(abs_path_to_file).st_size
                         #  convertim in KB
-                        size = round(get_size / 1024)
+                        if round(get_size / 1024) < 1000:
+                            size = round(get_size / 1024, 2)
+                            file_exist.size = size
+                            file_exist.sizeUnit = 'KB'
+                        elif round(get_size / (1024 * 1024)) < 1000:
+                            size = round(get_size / (1024 * 1024), 2)
+                            file_exist.sizeUnit = 'MB'
+                            file_exist.size = size
+
                         # stocam in db datele
+                        # TODO: Mai trebuie sa adaugam numarul de linii si de coloane!
                         file_exist.relativePath = relative_path_file
-                        file_exist.size = size
-                        file_exist.sizeUnit = 'KB'
                         file_exist.uploadTime = datetime.now()
                         db.session.add(file_exist)
 
@@ -176,38 +181,42 @@ def upload_file(dataset_name):
                     flash('Nu se incarca alte date despre fisier!', category="error")
 
             flash('Your files has been uploaded!', category="success")
+    # Altfel verificam daca exista date pe search, doar atunci sa preia POST request-ul
+    elif form_search.search_file.data:
+        if form_search.validate_on_submit():
+            # Preluam datele din formular
+            item_searched = form_search.search_file.data
+            # Cautam toate aparitiile datasetului in baza de date
+            files_search = FilesInDataset.query.filter_by(idDataset=id_dataset.idDataset).all()
+            # preluam toate id-urile pe care le-am gasit ca mai apoi sa le asignam query-ului care cauta toate
+            # aparitiile fiserului in dataset
+            id_file = list()
+            for el in files_search:
+                if item_searched in el.relation_file.fileName.split('^%20%^')[1]:
+                    id_file.append(el.relation_file.idFile)
+            # Doar atunci exista date in lista vom face query-ul, altfel nu !
+            if id_file:
+                items_per_page = db.paginate(FilesInDataset.query.order_by(FilesInDataset.idFile.desc()).filter(
+                                             FilesInDataset.idFile.in_(id_file)),
+                                             page=page,
+                                             per_page=6,
+                                             error_out=False)
+                flash(f'The file \'{item_searched}\' was found!', category='success')
+
+                return render_template('datasets/upload.html',
+                                       upload=upload,
+                                       cur_object=current_user,
+                                       dataset_name=dataset_name,
+                                       items_per_page=items_per_page,
+                                       form_search=form_search)
+            else:
+                flash(f'No file found!', category="error")
     # Pregatim fisierele spre vizualizare si paginare
-    items_per_page = db.paginate(FilesInDataset.query.order_by(FilesInDataset.idFile.desc()).filter_by(idDataset=id_dataset.idDataset),
-                                 page=page,
-                                 per_page=6,
-                                 error_out=False)
-
-    if form_search.search_file.data and form_search.validate_on_submit():
-        item_searched = form_search.search_file.data
-
-        files_search = FilesInDataset.query.filter_by(idDataset=id_dataset.idDataset).all()
-
-        id_file = list()
-        for el in files_search:
-            if item_searched in el.relation_file.fileName.split('_')[1]:
-                id_file.append(el.relation_file.idFile)
-        if id_file:
-
-            items_per_page = db.paginate(FilesInDataset.query.order_by(FilesInDataset.idFile.desc()).filter(FilesInDataset.idFile.in_(id_file)),
-                                         page=page,
-                                         per_page=6,
-                                         error_out=False)
-            flash(f'The file \'{item_searched}\' was found!', category='success')
-
-            return render_template('datasets/upload.html',
-                                   upload=upload,
-                                   cur_object=current_user,
-                                   dataset_name=dataset_name,
-                                   items_per_page=items_per_page,
-                                   form_search=form_search)
-        else:
-            flash(f'The file \'{item_searched}\' doesn\'t exist!', category="error")
-
+    items_per_page = db.paginate(FilesInDataset.query.order_by(FilesInDataset.idFile.desc()).filter_by(
+        idDataset=id_dataset.idDataset),
+        page=page,
+        per_page=6,
+        error_out=False)
     return render_template('datasets/upload.html',
                            upload=upload,
                            cur_object=current_user,
@@ -219,28 +228,33 @@ def upload_file(dataset_name):
 @datasets_blueprint.route('delete_file/<string:dataset_name>/<int:id_file>', methods=['GET', 'POST'])
 @login_required
 def delete_file(id_file, dataset_name):
-    # TODO: Trebuie avut in vedere ca va trebui inainte sa stergem un fisier sau folder trebuie sterse si toate asocierile cu celelalte tabele!!
+    # TODO: Mai trebuie dupa implementarea drepturilor pe dataseturi sa se stearga datele si din tabelele asociate
     if id_file:
+        # Cautam fisierul
         query_file = DataFiles.query.filter_by(idFile=id_file).first()
+        # Daca exista ii vom cauta asocieri cu alte tabele
         if query_file:
             name_file = query_file.fileName
             files_in_dataset = FilesInDataset.query.filter_by(idFile=query_file.idFile).first()
             log_file = LogFile.query.filter_by(idFile=query_file.idFile).all()
+            # Daca exista asocieri in alte tabele le vom sterge
             if files_in_dataset:
                 db.session.delete(files_in_dataset)
             if log_file:
                 for el in log_file:
                     db.session.delete(el)
-
+            # Si la final se sterg fisierele din tabelul destinat acestora
             db.session.delete(query_file)
             db.session.commit()
+            # Se sterge local!
             try:
                 os.remove(os.path.join(app.config['DATASETS_PATH'], query_file.relativePath))
             except FileNotFoundError:
                 flash('No such file on filesystem locally !', category='error')
 
-            flash(f'Your file \'{name_file.split('_')[1]}\' has been deleted!', category="success")
+            flash(f'Your file \'{name_file.split('^%20%^')[1]}\' has been deleted!', category="success")
         else:
+            # Asta nu are sens, dar in caz ca se fac request-uri pe endpoint-ul acesta sa se afiseze un mesaj!
             flash(f'The file doesn\'t exist!', category="error")
 
     return redirect(url_for('Datasets.upload_file', dataset_name=dataset_name))

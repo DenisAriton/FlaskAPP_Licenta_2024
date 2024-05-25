@@ -32,11 +32,3 @@ class Config(object):
     ABS_UPLOADS_PATH = os.path.join(abs_path_to_config, "Uploads")
     DATASETS_PATH = os.path.join(ABS_UPLOADS_PATH, "Datasets")
     IMG_PATH = os.path.join(ABS_UPLOADS_PATH, "Profile_Img")
-
-
-if __name__ == "__main__":
-    BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-    print(f'Absolute path to .env: {os.path.join(BASE_DIR, ".env")}')
-    print(f'SECRET_KEY: {Config.SECRET_KEY}')
-    print(f'SQLAlchemy_URI: {Config.SQLALCHEMY_DATABASE_URI}')
-    print(f'Absolute path to application repository: {Config.ABS_PATH_TO_REPO}')

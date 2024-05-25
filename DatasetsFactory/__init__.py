@@ -5,6 +5,7 @@ from sqlalchemy.orm import DeclarativeBase
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
 from config import Config
+from flask_migrate import Migrate
 
 
 class Base(DeclarativeBase):
@@ -17,6 +18,7 @@ app = Flask(__name__, instance_relative_config=False)
 csrf_val = CSRFProtect()
 db = SQLAlchemy(model_class=Base, disable_autonaming=True)
 log_manager = LoginManager()
+migrate = Migrate()
 
 
 def create_app():
@@ -30,19 +32,8 @@ def create_app():
     db.init_app(app)
     # Initializam CSRFProtect pentru a ne gestiona token-urile pentru formulare
     csrf_val.init_app(app)
-
-    # Inregistrarea blueprinturilor aplicatiei
-    from .authentication import login, signup
-    from .views import routes
-    from DatasetsFactory.profile import dashboard
-    from DatasetsFactory.datasets import datasets
-    from DatasetsFactory.administrator import admin
-    app.register_blueprint(login.login_blueprint, url_prefix='/')
-    app.register_blueprint(signup.signup_blueprint, url_prefix='/authentication')
-    app.register_blueprint(routes.routes_blueprint, url_prefix='/routes')
-    app.register_blueprint(dashboard.profile_blueprint, url_prefix='/dashboard')
-    app.register_blueprint(datasets.datasets_blueprint, url_prefix='/datasets')
-    app.register_blueprint(admin.admin_blueprint, url_prefix='/admin')
+    # Initializam Flask-Migration - daca facem modificari pe user_identification o sa fie problema cu crearea adminului la init!
+    migrate.init_app(app, db)
 
     # Cream baza de date cu toate tabelele definite in ORM-ul models
     from .models import (UserIdentification, UserSession, DataFiles, LogFile, FileAccess, UserGroup, Groups, Datasets,
@@ -65,8 +56,17 @@ def create_app():
             dir_maker = CreateDirectory(path=el)
             dir_maker.make_folder()
 
-    # Afisam dictionarul app.config sa vedem valorile - debugging doar
-    # for key, el in app.config.items():
-    #     print(f'{key}: {el}')
+    # Inregistrarea blueprinturilor aplicatiei
+    from .authentication import login, signup
+    from .views import routes
+    from DatasetsFactory.profile import dashboard
+    from DatasetsFactory.datasets import datasets
+    from DatasetsFactory.administrator import admin
+    app.register_blueprint(login.login_blueprint, url_prefix='/')
+    app.register_blueprint(signup.signup_blueprint, url_prefix='/authentication')
+    app.register_blueprint(routes.routes_blueprint, url_prefix='/routes')
+    app.register_blueprint(dashboard.profile_blueprint, url_prefix='/dashboard')
+    app.register_blueprint(datasets.datasets_blueprint, url_prefix='/datasets')
+    app.register_blueprint(admin.admin_blueprint, url_prefix='/admin')
 
     return app

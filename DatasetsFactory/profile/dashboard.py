@@ -17,9 +17,7 @@ profile_blueprint = Blueprint('Profile', __name__)
 def profile(firstname, lastname):
     image_form = ImageProfile()
     profile_form = ProfileForm()
-    print(f'Image submit: {image_form.image_up.data}')
     if image_form.image_up.data is not None:
-        print("Submit image success!")
         if image_form.validate_on_submit():
             # preluam imaginea incarcata in formular
             img_data = image_form.image_up.data
@@ -60,7 +58,6 @@ def profile(firstname, lastname):
                 return redirect(url_for('Profile.profile', firstname=firstname, lastname=lastname))
 
     elif profile_form.submit.data:
-        print(f'Profile submit: {profile_form.submit.data}')
         if profile_form.validate_on_submit():
             # TODO: Mai trebuie sa verificam ca datele sa nu fie nule, pentru a putea modifica doar una cele 3 inputuri
             first_data = profile_form.firstname.data

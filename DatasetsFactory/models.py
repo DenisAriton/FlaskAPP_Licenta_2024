@@ -1,6 +1,6 @@
 from DatasetsFactory import db
 from sqlalchemy.orm import mapped_column, relationship
-from sqlalchemy import Integer, VARCHAR, TIMESTAMP, TEXT, Enum, ForeignKey, text
+from sqlalchemy import Integer, VARCHAR, TIMESTAMP, TEXT, Enum, ForeignKey, text, Float
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -15,6 +15,7 @@ class UserIdentification(db.Model, UserMixin):
     ImageName = mapped_column(VARCHAR(255), unique=True, nullable=True)
     keyPass = mapped_column(VARCHAR(255), unique=True, nullable=False)
     keyRole = mapped_column(VARCHAR(255), nullable=False, server_default='User')
+    TokenKey = mapped_column(VARCHAR(255), nullable=True)
     # Momentul inregistrarii
     timeRegistered = mapped_column(TIMESTAMP, nullable=False, server_default=text('CURRENT_TIMESTAMP'))
     # Momentul resetarii informatiilor personale
@@ -49,6 +50,7 @@ class Groups(db.Model):
     __tablename__ = "groups"
     idGroup = mapped_column(Integer, primary_key=True, autoincrement=True, nullable=False)
     groupName = mapped_column(VARCHAR(255), unique=True, nullable=False)
+    members = mapped_column(Integer, nullable=True)
     userGr = relationship("UserGroup", back_populates="groupsId")
     file = relationship("FileAccess", back_populates="groups")
 
@@ -108,7 +110,7 @@ class DataFiles(db.Model):
     idFile = mapped_column(Integer, primary_key=True, autoincrement=True, nullable=False)
     fileName = mapped_column(VARCHAR(255), unique=True, nullable=True)
     extension = mapped_column(VARCHAR(15), nullable=True)  # .txt, .pdf, .csv, .doc, .xlsx
-    size = mapped_column(Integer, nullable=True)
+    size = mapped_column(Float, nullable=True)
     sizeUnit = mapped_column(Enum("KB", "MB", "GB"), nullable=True)
     relativePath = mapped_column(VARCHAR(255), nullable=True)
     columnNr = mapped_column(Integer, nullable=True)

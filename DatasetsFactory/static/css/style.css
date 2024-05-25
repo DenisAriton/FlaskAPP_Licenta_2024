@@ -254,3 +254,25 @@ img.img-resize-tabel{
 	width: 48px;
 	height: 48px;
 }
+
+/* Stilizare header de tabele */
+th, td{
+	text-align: center;
+}
+
+/* Stilizare edit pe numele grupei */
+span.edit-group-div{
+	border-radius: 45%;
+}
+a.edit-group{
+	color:grey;
+	text-decoration: none;
+}
+a.edit-group:hover{
+	color: rgba(36, 159, 215, 0.89);
+	transition-duration: 0.9s;
+}
+span.edit-group-div:hover{
+	transform:scale(1.2);
+	transition-duration: 1.2s;
+}
