@@ -1,0 +1,81 @@
+{% extends "index.html" %}
+{% block title %} Datasets assigned {% endblock %}
+
+{% block content %}
+{{ super() }}
+{% endblock %}
+
+{% block content_page %}
+    <div class="container-fluid mb-3">
+        {# Titlul paginii #}
+        <div class="row bread-dataset justify-content-center align-items-center">
+              <nav class="bread-nav" aria-label="breadcrumb ">
+                <ol class="breadcrumb bread-dataset">
+                    <li class="breadcrumb-item ">
+                        <a href="{{ url_for('Admin.create_group') }}" style="text-decoration: none; color: grey;"  data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Back to groups page!">
+                            Datasets assigned to the group {{ group_db.groupName }}
+                        </a>
+                    </li>
+                </ol>
+              </nav>
+        </div>
+    </div>
+    <div class="container-fluid">
+        {# Select field cu toate dataseturile care nu sunt asignate! Restul se vor afisa sub forma de lista   #}
+        <form id="SelectDataset" method="POST" action="{{ url_for('Admin.assign_privileges', group_id=group_db.idGroup) }}" novalidate>
+            <div class="row mb-3">
+                {{ select_dataset.csrf_token() }}
+                <div class="col-md-4">
+                    {{ select_dataset.dataset(class="form-control") }}
+                </div>
+                <div class="col-md-1">
+                    {{ select_dataset.submit_dataset(class="btn btn-primary", for="SelectDataset") }}
+                </div>
+            </div>
+        </form>
+        {% if groups_with_rights %}
+            <div class="row table-responsive-md justify-content-center align-items-center">
+                <table class="table table-hover align-middle" style="width: 98%;">
+                    <thead>
+                        <tr class="d-flex">
+                            <th scope="col" class="col-2">Datasets</th>
+                            <th scope="col" class="col-1">Access</th>
+                            <th scope="col" class="col-2">Erase the access on dataset</th>
+                            <th scope="col" class="col-2">Time get access</th>
+                            <th scope="col" class="col-2">Time take access</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {% for dataset in groups_with_rights %}
+                            <tr class="d-flex">
+                                <td class="col-md-2">
+                                    {{ dataset.datasets_access.directory }}
+                                </td>
+                                <td class="col-md-1">
+                                    {{ dataset.keyAccess }}
+                                </td>
+                                <td class="col-md-2">
+                                    <a href="{{ url_for('Admin.erase_access', group_id=group_db.idGroup, dataset_id=dataset.idDataset) }}" type="button" class="btn btn-primary">
+                                        Erase
+                                    </a>
+                                </td>
+                                <td class="col-md-2">
+                                    {{ dataset.TimeGetAccess }}
+                                </td>
+                                <td class="col-md-2">
+                                    {{ dataset.TimeTakeAccess }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block js_cdn %}
+    {{ super() }}
+{% endblock %}

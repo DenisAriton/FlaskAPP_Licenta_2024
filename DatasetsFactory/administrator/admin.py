@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from DatasetsFactory.forms import CreateGroup, SearchGroup, EditGroup, SelectUser
+from DatasetsFactory.forms import CreateGroup, SearchGroup, EditGroup, SelectUser, SelectDataset
 from DatasetsFactory import db
-from DatasetsFactory.models import Groups, FileAccess, UserGroup, UserIdentification
+from DatasetsFactory.models import Groups, FileAccess, UserGroup, UserIdentification, Datasets
+from datetime import datetime
 
 admin_blueprint = Blueprint('Admin', __name__)
 
@@ -209,3 +210,70 @@ def assign_group(group_id):
     else:
         flash(f'Select error: {form_select_user.user.errors[0]}', category='error')
     return redirect(url_for('Admin.create_group'))
+
+
+@admin_blueprint.route('assign-priveleges-on-datasets/<string:group_id>', methods=['GET', 'POST'])
+@login_required
+def assign_privileges(group_id):
+    select_dataset = SelectDataset()
+    # Preluam toate datseturile care nu au fost atribuite grupei acesteia
+    datasets_db = Datasets.query.order_by(Datasets.directory.asc()).all()
+    # Preluam grupele care au deja un dataset atribuit
+    groups_with_rights = FileAccess.query.filter_by(idGroup=group_id).all()
+    # Cream o lista de chei ca sa verificam daca exista dataseturi deja atribuite si cu access
+    file_access_db = [el.idDataset for el in groups_with_rights if el.keyAccess == 1]
+    # Verificam sa nu existe vreun dataset deja atribuit aceleiasi grupe
+    not_assigned = [el for el in datasets_db if el.idDataset not in file_access_db]
+    # Cream lista de tupluri pentru optiunile selectfield-ului
+    choices_datasets = [(dataset_group.idDataset, dataset_group.directory) for dataset_group in not_assigned]
+    # Cream un placeholder pentru prima valoare
+    choices_datasets.insert(0, (" ", "Select a dataset..."))
+    select_dataset.dataset.choices = choices_datasets
+    # Facem query-ul sa afisam numele grupei pe care face atribuirea de dataseturi
+    group_db = Groups.query.filter_by(idGroup=group_id).first()
+
+    if select_dataset.validate_on_submit():
+        dataset_id = select_dataset.dataset.data
+        query_dataset = FileAccess.query.filter_by(idDataset=dataset_id, idGroup=group_id).first()
+        if query_dataset and query_dataset.keyAccess == 0:
+            # Doar facem update pe coloana sa dam acces
+            query_dataset.keyAccess = 1
+            query_dataset.TimeGetAccess = datetime.now()
+            db.session.commit()
+            flash(f'The dataset {query_dataset.datasets_access.directory} has been assigned to {group_db.groupName}!', category='success')
+            return redirect(url_for('Admin.assign_privileges', group_id=group_id))
+        else:
+            # Altfel facem insert daca nu exista deja in db
+            dataset_name = Datasets.query.filter_by(idDataset=dataset_id).first()
+            file_access_insert = FileAccess(idGroup=group_id, idDataset=dataset_id, keyAccess=1)
+            db.session.add(file_access_insert)
+            db.session.commit()
+            flash(f'The dataset {dataset_name.directory} has been assigned to {group_db.groupName}!', category='success')
+            return redirect(url_for('Admin.assign_privileges', group_id=group_id))
+    else:
+        if request.method == "POST":
+            flash(f'Select error: {select_dataset.dataset.errors[0]}', category="error")
+            return redirect(url_for('Admin.assign_privileges', group_id=group_id))
+
+    return render_template('admin/privileges.html',
+                           cur_object=current_user,
+                           group_db=group_db,
+                           select_dataset=select_dataset,
+                           groups_with_rights=groups_with_rights)
+
+
+@admin_blueprint.route('erase-access-on-dataset/for-group<int:group_id>/<int:dataset_id>')
+@login_required
+def erase_access(group_id, dataset_id):
+    print(group_id, dataset_id)
+    dataset_access = FileAccess.query.filter_by(idGroup=group_id, idDataset=dataset_id).first()
+    if dataset_access and dataset_access.keyAccess == 1:
+        dataset_access.keyAccess = 0
+        dataset_access.TimeTakeAccess = datetime.now()
+        db.session.commit()
+        flash(f'The access on dataset {dataset_access.datasets_access.directory} has been erased!', category='success')
+        return redirect(url_for('Admin.assign_privileges', group_id=group_id))
+    else:
+        flash(f'The group {dataset_access.groups.groupName} has not access on {dataset_access.datasets_access.directory}!',
+              category='error')
+        return redirect(url_for('Admin.assign_privileges', group_id=group_id))

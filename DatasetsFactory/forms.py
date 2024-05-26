@@ -368,7 +368,7 @@ class SelectDataset(FlaskForm):
             DataRequired(message='Select a dataset before submitting!'),
         ],
         coerce=str)
-    submit_dataset = SubmitField('Save')
+    submit_dataset = SubmitField('Assign')
 
 
 class SelectUser(FlaskForm):

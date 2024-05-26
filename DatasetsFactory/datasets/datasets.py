@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from DatasetsFactory.forms import UploadFile, FileFolderDescription, SearchItems, SearchFiles
 from werkzeug.utils import secure_filename
 from DatasetsFactory import db, app
-from DatasetsFactory.models import DataFiles, Datasets, FilesInDataset, LogFile
+from DatasetsFactory.models import DataFiles, Datasets, FilesInDataset, LogFile, FileAccess
 from DatasetsFactory.usefull import CreateDirectory
 from datetime import datetime
 import os
@@ -91,13 +91,17 @@ def delete_datasets(idfolder):
     # Cautam dataset-ul care se doreste a fi sters
     db_dataset = Datasets.query.filter_by(idDataset=idfolder).first()
     # Cautam asocierile
+    file_access = FileAccess.query.filter_by(idDataset=idfolder).all()
     db_file_in_dataset = FilesInDataset.query.filter_by(idDataset=db_dataset.idDataset).all()
     # Daca datasetul exista atunci se va sterge
     if db_dataset:
+        # Stergem din tabelul cu privilegii prima data
+        if file_access:
+            for dataset_access in file_access:
+                db.session.delete(dataset_access)
         # Stergem din folder
         del_dir = CreateDirectory(path=app.config['DATASETS_PATH'], dir_name=db_dataset.directory)
         del_dir.remove_dir()
-        # TODO: Mai trebuie dupa implementarea drepturilor pe dataseturi sa se stearga datele si din tabelele asociate
         # Se sterg toate aparitiile datasetului in FilesInDataset
         if db_file_in_dataset:
             for el in db_file_in_dataset:
@@ -228,7 +232,6 @@ def upload_file(dataset_name):
 @datasets_blueprint.route('delete_file/<string:dataset_name>/<int:id_file>', methods=['GET', 'POST'])
 @login_required
 def delete_file(id_file, dataset_name):
-    # TODO: Mai trebuie dupa implementarea drepturilor pe dataseturi sa se stearga datele si din tabelele asociate
     if id_file:
         # Cautam fisierul
         query_file = DataFiles.query.filter_by(idFile=id_file).first()
