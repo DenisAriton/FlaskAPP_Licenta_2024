@@ -17,6 +17,8 @@
             <p>Date: {{ cur_object.timeRegistered.date() }}</p>
             <p>Hour: {{ cur_object.timeRegistered.time() }}</p>
             <p>RelSession: {{ cur_object.relSession }}</p>
+            <p>RelSession: {{ cur_object.relSession[-1] }}</p>
+            <p>Ultima logare: {{ cur_object.relSession[-1].startTime }}</p>
             <p>ID: {{ cur_object.idUser }}</p>
     {% endif %}
 {% endblock %}

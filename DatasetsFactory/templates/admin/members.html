@@ -13,7 +13,7 @@
                 <ol class="breadcrumb bread-dataset">
                     <li class="breadcrumb-item ">
                         <a href="{{ url_for('Admin.create_group') }}" style="text-decoration: none; color: grey;" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Go to Groups!">
-                            Members
+                            Members of {{" " ~ group_name }}
                         </a>
                     </li>
                 </ol>
@@ -22,21 +22,37 @@
     </div>
     <div class="container-fluid g-3">
         <div class="container text-center">
-            <div class="row row-cols-2">
-                {% if member.keyRole == 'User' %}
-                    <div class="col">
-                        <div class="card">
-                            <span class="material-symbols-outlined x-padd" style="margin:0;">
-                                <a href="{{ url_for('Admin.delete_group', id_group=group.idGroup) }}" class="a-padd">close</a>
-                            </span>
-                            <img src="{{url_for('Profile.serving_image', filename= member.ImageName)}}" class="card-img-top" alt="...">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ member.firstName  ~ member.lastName }}</h5>
+            {% if items_exist %}
+                <div class="row row-cols-5">
+                    {% for member in items_per_page %}
+                        {% if member.userId.keyRole == 'User' %}
+                            <div class="col">
+                                <div class="card mb-3">
+                                    <a class="x-members" href="{{ url_for('Admin.delete_member', id_group=id_group, id_member=member.idUser) }}" >
+                                        <span class="material-symbols-outlined" style="font-weight: bold; margin-top: 5px; color: grey;" >
+                                            close
+                                        </span>
+                                    </a>
+
+                                    {% if member.userId.ImageName %}
+                                        <img src="{{url_for('Profile.serving_image', filename= member.userId.ImageName)}}" class="card-img-top image-member" alt="..." >
+                                    {% else %}
+                                        <img src="{{url_for('static', filename='images/default_img.png')}}" class="card-img-top image-member" alt="...">
+                                    {% endif %}
+
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ member.userId.firstName ~ " " ~ member.userId.lastName }}</h5>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="row justify-content-center align-items-center">
+                    <h3> This group haven't members! </h3>
+                </div>
+            {% endif %}
         </div>
         <div class="row justify-content-center align-items-center">
             {# Pagination - 12 dataseturi pe pagina!  #}
@@ -44,7 +60,7 @@
                 <ul class="pagination">
                     {% if items_per_page.has_prev %}
                         <li class="page-item">
-                          <a class="page-link" href="{{ url_for('Admin.members', page=items_per_page.prev_num) }}" aria-label="Previous">
+                          <a class="page-link" href="{{ url_for('Admin.members', id_group=id_group, page=items_per_page.prev_num) }}" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                           </a>
                         </li>
@@ -53,9 +69,9 @@
                     {% for page in items_per_page.iter_pages(left_edge=2, right_edge=2) %}
                         {% if page %}
                             {% if page == items_per_page.page %}
-                                <li class="page-item active"><a class="page-link" href="{{ url_for('Admin.members', page=page) }}">{{ page }}</a></li>
+                                <li class="page-item active"><a class="page-link" href="{{ url_for('Admin.members', id_group=id_group, page=page) }}">{{ page }}</a></li>
                             {% else %}
-                                <li class="page-item"><a class="page-link" href="{{ url_for('Admin.members', page=page) }}">{{ page }}</a></li>
+                                <li class="page-item"><a class="page-link" href="{{ url_for('Admin.members', id_group=id_group, page=page) }}">{{ page }}</a></li>
                             {% endif %}
                         {% else %}
                             <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
@@ -64,7 +80,7 @@
 
                     {% if items_per_page.has_next %}
                         <li class="page-item">
-                          <a class="page-link" href="{{ url_for('Admin.members', page=items_per_page.next_num) }}" aria-label="Next">
+                          <a class="page-link" href="{{ url_for('Admin.members', id_group=id_group, page=items_per_page.next_num) }}" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                           </a>
                         </li>

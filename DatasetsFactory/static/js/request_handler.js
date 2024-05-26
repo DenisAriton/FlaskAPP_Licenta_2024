@@ -44,6 +44,18 @@ function toogle_edit(id_group){
         div_edit.style.display = 'none';
     }
 }
+
+function toogle_members(id_group){
+    let id_form = 'add-member-form'
+    const div_form = document.getElementById(id_form.concat(id_group));
+    if (div_form.style.display === 'none'){
+        div_form.style.display = 'flex';
+    }else if (div_form.style.display === 'flex'){
+        div_form.style.display = 'none';
+
+    }
+}
+
 // Trigger de tooltip! Daca nu functioneaza aici, il vom introduce in template-uri!
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
 const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));

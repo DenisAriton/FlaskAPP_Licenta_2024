@@ -360,15 +360,24 @@ class SearchGroup(FlaskForm):
         render_kw={"placeholder": "Search group..."})
 
 
-class SelectGroup(FlaskForm):
-    group_id = SelectField(
-        'Group',
+class SelectDataset(FlaskForm):
+    dataset = SelectField(
+        'Select Dataset',
         validators=
         [
-            DataRequired(message='Select a group before submitting!')
+            DataRequired(message='Select a dataset before submitting!'),
         ],
-        render_kw={'placeholder': 'Select a group...'})
+        coerce=str)
+    submit_dataset = SubmitField('Save')
 
-    radio_user = RadioField('ID_User')
-    submit_group = SubmitField('Save')
+
+class SelectUser(FlaskForm):
+    user = SelectField(
+        'Select User',
+        validators=
+        [
+            DataRequired(message='Select a user before submitting!')
+        ],
+        coerce=str)
+    submit_user = SubmitField('Save')
 

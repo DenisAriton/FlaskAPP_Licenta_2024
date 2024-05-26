@@ -196,6 +196,9 @@ div.tb-close-center{
 	transition: 0.5s;
 	background-color: rgba(255, 0, 0, 0.438) !important;
 }
+.x-members{
+	background-color: rgba(255, 0, 0, 0.20) !important;
+}
 .dataset-box{
 	background-color: rgb(219, 219, 219);
 }
@@ -275,4 +278,17 @@ a.edit-group:hover{
 span.edit-group-div:hover{
 	transform:scale(1.2);
 	transition-duration: 1.2s;
+}
+/* Stilizare buton modal */
+.btn-add-member{
+	border: none;
+	background-color: white;
+	color: rgba(57, 149, 255, 0.747);
+}
+.btn-add-member:hover{
+	background-color: rgba(57, 149, 255, 0.747);
+	color: white;
+}
+.image-member{
+	height: 220px;
 }

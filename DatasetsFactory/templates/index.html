@@ -98,16 +98,9 @@
               {% endif %}
                 {% if cur_object.keyRole == 'Admin' %}
                     <li>
-                    {# Va fi un alt template randat aici din admin - datasets_privileges pentru acordare de privilegii pe seturi de date #}
-                      <a href="" class="nav-link link-dark link-sidebar">
+                      <a href="{{ url_for('Datasets.list_datasets') }}" class="nav-link link-dark link-sidebar">
                         <span class="material-symbols-outlined" >folder_open</span>
                         Datasets
-                      </a>
-                    </li>
-                    <li>
-                      <a href="{{ url_for('Datasets.list_datasets') }}" class="nav-link link-dark link-sidebar">
-                        <span class="material-symbols-outlined" >Upload</span>
-                        Upload
                       </a>
                     </li>
                 {% endif %}

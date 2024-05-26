@@ -65,55 +65,72 @@
                     <tr class="d-flex">
                         <th scope="col" class="col-1">No.</th>
                         <th scope="col" class="col-2">Group Name</th>
-                        <th scope="col" class="col-2">Members</th>
-                        <th scope="col" class="col-2">See members</th>
-                        <th scope="col" class="col-3">Edit</th>
-                        <th scope="col" class="col-2">Delete</th>
+                        <th scope="col" class="col-4">Add Members</th>
+                        <th scope="col" class="col-1">Members</th>
+                        <th scope="col" class="col-1">See members</th>
+                        <th scope="col" class="col-2">Edit</th>
+                        <th scope="col" class="col-1">Delete</th>
                     </tr>
                 </thead>
                 <tbody>
-                {% if items_per_page %}
                     {% for group in items_per_page %}
-                                <tr class="d-flex">
-                                    <th scope="row" class="col-1">{{ loop.index }}</th>
-                                    <td class="col-2">{{ group.groupName }}</td>
-                                    <td class="col-2">{{ group.members }}</td>
-
-                                    <td class="col-2">
-                                        <div class="row justify-content-center align-items-center">
-                                            <div class="col-md-1 aliniaza-close tb-close-center" style="width: fit-content;">
-                                                <span class="material-symbols-outlined edit-group-div">
-                                                    <a href="" class="edit-group">groups</a>
-                                                </span>
-                                            </div>
+                        <tr class="d-flex">
+                            <th scope="row" class="col-1">{{ loop.index }}</th>
+                            <td class="col-2">{{ group.groupName }}</td>
+                            <td class="col-4">
+                                <form id="Add_{{ group.idGroup }}" method="POST" action="{{ url_for('Admin.assign_group', group_id=group.idGroup) }}" novalidate>
+                                    <div class="row justify-content-center align-items-center" >
+                                        <span class="material-symbols-outlined" style="width: fit-content;">
+                                            <button  type="button" class="btn-add-member " onclick="toogle_members({{ group.idGroup }})">
+                                                group_add
+                                            </button>
+                                        </span>
+                                    </div>
+                                    <div id="add-member-form{{ group.idGroup }}" class="row justify-content-center align-items-center" style="display: none;">
+                                        <div class="col-md-10"  >
+                                                {{ form_select_user.csrf_token() }}
+                                                {{ form_select_user.user(class="form-control") }}
                                         </div>
-                                    </td>
-
-                                    <td class="col-3">
-                                        <div class="row" style="width: fit-content;">
-                                            <div class="col-md-1 aliniaza-close tb-close-center">
-                                                <span class="material-symbols-outlined edit-group-div" >
-                                                    <a href="#" class="edit-group"  onclick="toogle_edit({{ group.idGroup }})" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Change the name of the group!">edit_note</a>
-                                                </span>
-                                            </div>
-                                            <div class="col-md-9" id="{{ group.idGroup }}" style="display: none;" >
-                                                <form id="EditGroup" method="POST" action="{{ url_for('Admin.edit_group', id_group=group.idGroup) }}" novalidate>
-                                                    {{ form_edit.csrf_token() }}
-                                                    {{ form_edit.name(class="form-control") }}
-                                                </form>
-                                            </div>
+                                        <div class="col-md-2 aliniaza-close tb-close-center">
+                                            {{ form_select_user.submit_user(class="btn btn-primary", for="Add_"+group.idGroup|string) }}
                                         </div>
-                                    </td>
-                                    <td class="col-2">
-                                        <div class="col-md-1 aliniaza-close tb-close-center">
-                                            <span class="material-symbols-outlined x-padd" style="margin:0;">
-                                                <a href="{{ url_for('Admin.delete_group', id_group=group.idGroup) }}" class="a-padd">close</a>
-                                            </span>
-                                        </div>
-                                    </td>
-                                </tr>
+                                    </div>
+                                </form>
+                            </td>
+                            <td class="col-1">{{ group.members }}</td>
+                            <td class="col-1">
+                                <div class="row justify-content-center align-items-center">
+                                    <div class="col-md-1 aliniaza-close tb-close-center" style="width: fit-content;">
+                                        <span class="material-symbols-outlined edit-group-div">
+                                            <a href="{{ url_for('Admin.members', id_group=group.idGroup) }}" class="edit-group">groups</a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="col-2">
+                                <div class="row" style="width: fit-content;">
+                                    <div class="col-md-3 aliniaza-close tb-close-center">
+                                        <span class="material-symbols-outlined edit-group-div" >
+                                            <a href="#" class="edit-group"  onclick="toogle_edit({{ group.idGroup }})" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Change the name of the group!">edit_note</a>
+                                        </span>
+                                    </div>
+                                    <div class="col-md-9" id="{{ group.idGroup }}" style="display: none;" >
+                                        <form id="EditGroup" method="POST" action="{{ url_for('Admin.edit_group', id_group=group.idGroup) }}" novalidate>
+                                            {{ form_edit.csrf_token() }}
+                                            {{ form_edit.name(class="form-control") }}
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="col-1">
+                                <div class="col-md-1 aliniaza-close tb-close-center">
+                                    <span class="material-symbols-outlined x-padd" style="margin:0;">
+                                        <a href="{{ url_for('Admin.delete_group', id_group=group.idGroup) }}" class="a-padd">close</a>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
                     {% endfor %}
-                {% endif %}
                 </tbody>
             </table>
         </div> {# row table #}

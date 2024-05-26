@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from DatasetsFactory.forms import CreateGroup, SelectGroup, SearchGroup, EditGroup
+from DatasetsFactory.forms import CreateGroup, SearchGroup, EditGroup, SelectUser
 from DatasetsFactory import db
-from DatasetsFactory.models import Groups, FileAccess, UserGroup
+from DatasetsFactory.models import Groups, FileAccess, UserGroup, UserIdentification
 
 admin_blueprint = Blueprint('Admin', __name__)
 
@@ -14,6 +14,17 @@ def create_group():
     form = CreateGroup()
     form_search = SearchGroup()
     form_edit = EditGroup()
+
+    # Dropdown list pentru selectare de useri
+    form_select_user = SelectUser()
+    # Prima data trebuie sa luam doar acei useri care nu au o grupa asociata, doar aceea vor putea fi selectati
+    already_assigned_to_group = [el.idUser for el in UserGroup.query.order_by(UserGroup.idUserGroup.asc()).all()]
+    user_id = UserIdentification.query.order_by(UserIdentification.lastName.asc()).all()
+    users_not_assigned = [el1 for el1 in user_id if el1.idUser not in already_assigned_to_group]
+    choices_users = [(user.idUser, f'{user.lastName} {user.firstName}') for user in users_not_assigned if user.keyRole == 'User']
+    choices_users.insert(0, (" ", "Select a user..."))
+    form_select_user.user.choices = choices_users
+
     if form.group_name.data:
         # Daca se valideaza formularul de creare grupa se va face insert
         if form.validate_on_submit():
@@ -43,13 +54,23 @@ def create_group():
                            form_search=form_search,
                            items_per_page=items_per_page,
                            form_edit=form_edit,
-                           exit_items=exist_items)
+                           exit_items=exist_items,
+                           form_select_user=form_select_user)
 
 
 @admin_blueprint.route('search/<string:item_searched>', methods=['GET'])
 @login_required
 def search_group(item_searched):
     form_edit = EditGroup()
+    form_select_user = SelectUser()
+    # Prima data trebuie sa luam doar acei useri care nu au o grupa asociata, doar aceea vor putea fi selectati
+    already_assigned_to_group = [el.idUser for el in UserGroup.query.order_by(UserGroup.idUserGroup.asc()).all()]
+    user_id = UserIdentification.query.order_by(UserIdentification.lastName.asc()).all()
+    users_not_assigned = [el1 for el1 in user_id if el1.idUser not in already_assigned_to_group]
+    choices_users = [(user.idUser, f'{user.lastName} {user.firstName}') for user in users_not_assigned if user.keyRole == 'User']
+    choices_users.insert(0, (" ", "Select a user..."))
+    form_select_user.user.choices = choices_users
+
     page = request.args.get('page', 1, type=int)
     group_id = list()
     search_group_db = Groups.query.filter(Groups.groupName.contains(f'{item_searched}')).all()
@@ -67,7 +88,8 @@ def search_group(item_searched):
                            cur_object=current_user,
                            items_per_page=items_per_page,
                            item=item_searched,
-                           form_edit=form_edit)
+                           form_edit=form_edit,
+                           form_select_user=form_select_user)
 
 
 @admin_blueprint.route('delete/<string:id_group>', methods=['GET'])
@@ -78,41 +100,53 @@ def delete_group(id_group):
     Odata sters, se va pierde si dreptul pe un anume dataset!
     """
     db_group = Groups.query.filter_by(idGroup=id_group).first()
-    db_access = FileAccess.query.filter_by(idGroup=id_group).first()
-    db_user = UserGroup.query.filter_by(idGroup=id_group).first()
+    db_access = FileAccess.query.filter_by(idGroup=id_group).all()
+    db_user = UserGroup.query.filter_by(idGroup=id_group).all()
+    if db_access:
+        for el1 in db_access:
+            db.session.delete(el1)
+    if db_user:
+        for el2 in db_user:
+            db.session.delete(el2)
     if db_group:
         db.session.delete(db_group)
-    if db_access:
-        db.session.delete(db_access)
-    if db_user:
-        db.session.delete(db_user)
     flash(f'The group \'{db_group.groupName}\' was deleted!', category="success")
     db.session.commit()
     return redirect(url_for('Admin.create_group'))
 
 
-@admin_blueprint.route('members/<string:id_group>', methods=['GET'], defaults={'page': 1})
 @admin_blueprint.route('members/<string:id_group>', methods=['GET'])
 @login_required
-def members(id_group, page):
+def members(id_group):
     """
     Vom lista toti membrii grupei!
     """
+    page = request.args.get('page', 1, type=int)
+    name_group = Groups.query.filter_by(idGroup=id_group).first()
     items_per_page = db.paginate(UserGroup.query.filter_by(idGroup=id_group), page=page, per_page=10, error_out=False)
+    items_exist = list(items_per_page)
     return render_template('admin/members.html',
                            cur_object=current_user,
-                           items_per_page=items_per_page)
+                           items_per_page=items_per_page,
+                           id_group=id_group,
+                           group_name=name_group.groupName,
+                           items_exist=items_exist)
 
 
 @admin_blueprint.route('delete/<string:id_group>/<string:id_member>', methods=['GET'])
 @login_required
 def delete_member(id_group, id_member):
     db_member = UserGroup.query.filter_by(idUser=id_member).first()
+    name_group = Groups.query.filter_by(idGroup=id_group).first()
     if db_member:
+        if db_member.groupsId.members == 1:
+            db_member.groupsId.members = None
+        else:
+            db_member.groupsId.members = db_member.groupsId.members - 1
         name = db_member.userId.firstName + " " + db_member.userId.lastName
         db.session.delete(db_member)
         db.session.commit()
-        flash(f'The member \'{name}\' was deleted!', category='success')
+        flash(f'The member \'{name}\' was deleted from the group {name_group.groupName} !', category='success')
         return redirect(url_for('Admin.members', id_group=id_group))
     else:
         flash(f'Something went wrong!', category='error')
@@ -139,19 +173,39 @@ def edit_group(id_group):
         flash(f'Edit error: {form_edit.name.errors[0]}', category='error')
         return redirect(url_for('Admin.create_group'))
 
-# @admin_blueprint.route('asign-group', methods=['GET', 'POST'])
-# @login_required
-# def asign_group():
-#     form_select_group = SelectGroup()
-#     return render_template('admin/users.html',
-#                            cur_object=current_user,
-#                            form_create_group=form_select_group)
-#
-#
-# @admin_blueprint.route('privileges-on-datasets', methods=['GET', 'POST'])
-# @login_required
-# def asign_privileges():
-#     form_select_group = SelectGroup()
-#     return render_template('admin/datasets_pivileges.html',
-#                            cur_object=current_user,
-#                            form_create_group=form_select_group)
+
+@admin_blueprint.route('asign-members-to-group/<string:group_id>', methods=['GET', 'POST'])
+@login_required
+def assign_group(group_id):
+    form_select_user = SelectUser()
+    # Ca sa putem prelua datele trebuie sa adaugam choices si aici ca altfel nu va merge validate...
+    user_id = UserIdentification.query.order_by(UserIdentification.firstName.asc()).all()
+    choices_users = [(user.idUser, f'{user.lastName} {user.firstName}') for user in user_id if user.keyRole == 'User']
+    choices_users.insert(0, (" ", "Select a user..."))
+    form_select_user.user.choices = choices_users
+
+    if form_select_user.validate_on_submit():
+        group_db = Groups.query.filter_by(idGroup=group_id).first()
+        user_id = form_select_user.user.data
+        user_name_db = UserIdentification.query.filter_by(idUser=user_id).first()
+        # Verificam sa nu mai fie deja asignat unei alte grupe
+        user_db = UserGroup.query.filter_by(idUser=user_id).first()
+        if user_db is None:
+            # Contorizam fiecare membru ce se va adauga la grupa
+            if group_db.members is not None:
+                nr_members = group_db.members + 1
+                group_db.members = nr_members
+            else:
+                nr_members = 1
+                group_db.members = nr_members
+
+            user_group = UserGroup(idUser=user_id, idGroup=group_id)
+            db.session.add(user_group)
+            flash(f'The user \'{user_name_db.firstName + " " + user_name_db.lastName}\' was assignet to the group \'{group_db.groupName}\'!', category="success")
+            db.session.commit()
+        else:
+            flash(f'The user \'{user_id}\' has already assigned to the group \'{user_db.groupsId.groupName}\'', category="error")
+            return redirect(url_for('Admin.create_group'))
+    else:
+        flash(f'Select error: {form_select_user.user.errors[0]}', category='error')
+    return redirect(url_for('Admin.create_group'))
