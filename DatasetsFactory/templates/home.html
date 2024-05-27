@@ -6,21 +6,72 @@
 {% endblock %}
 
 {% block content_page %}
-    {{ cur_object }}
-    {% if cur_object.is_authenticated %}
-        <h1>Welcome {{ cur_object.firstName }}!</h1>
-            <p>First Name: {{ cur_object.firstName }}</p>
-            <p>Last Name: {{ cur_object.lastName }}</p>
-            <p>Username: {{ cur_object.userName }}</p>
-            <p>Email: {{ cur_object.email }}</p>
-            <p>Role: {{ cur_object.keyRole }}</p>
-            <p>Date: {{ cur_object.timeRegistered.date() }}</p>
-            <p>Hour: {{ cur_object.timeRegistered.time() }}</p>
-            <p>RelSession: {{ cur_object.relSession }}</p>
-            <p>RelSession: {{ cur_object.relSession[-1] }}</p>
-            <p>Ultima logare: {{ cur_object.relSession[-1].startTime }}</p>
-            <p>ID: {{ cur_object.idUser }}</p>
-    {% endif %}
+    <div class="container-fluid">
+        <div class="row justify-content-center ">
+            <div class=" col-md-12 title-home">~Welcome~</div>
+            <div class=" col-md-5 box-content-home">
+                <div class="row">
+
+                    <div class="col-md-12 title-subcontent">
+                        What represents a Dataset?
+                    </div>
+
+                    <div class="col-md-12 text-subcontent">
+                        <p class="text-subcontent">
+                            <span>&nbsp &nbsp &nbsp</span> A dataset is an organized collection of information,
+                            often arranged in table form, where each row represents a record and each column represents a characteristic of that record.
+                            Datasets can contain various types of data, such as numbers, text, images, sounds, or other forms of information.
+                            Datasets in general are organized as follows: data for training and for testing.
+                        </p>
+                        <p class="text-subcontent">
+                            <h5 class="subtitle-content">Training</h5>
+                            <span>&nbsp &nbsp &nbsp</span> Machine learning models learn relationships and patterns from data,
+                            adjusting their parameters to minimize prediction error.
+                            Without data, a model cannot learn and therefore cannot make useful predictions.
+                        </p>
+                        <p class="text-subcontent">
+                            <h5 class="subtitle-content">Testing</h5>
+                            <span>&nbsp &nbsp &nbsp</span> After training, the models are evaluated on data not seen during training (test data)
+                            to check how well they generalize to new data.
+                            Validation data is used during model development to adjust hyperparameters and prevent overfitting.
+                        </p>
+                        <p class="text-subcontent">
+                            <h5 class="subtitle-content">Quality of data</h5>
+                            <span>&nbsp &nbsp &nbsp</span>  Quality and relevance of data sets are critical.
+                            The data must be representative of the problem the model is trying to solve.
+                            Noisy or irrelevant data can lead to ineffective or erroneous models.
+                            The data must also be clean, for example free of significant errors or omissions.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class=" col-md-5 box-content-home">
+                <div class="row">
+                    <div class="col-md-12 title-subcontent">
+                        What is DatasetsFactory?
+                    </div>
+                    <div class="col-md-12 text-subcontent">
+                        <p class="text-subcontent">
+                            <span>&nbsp &nbsp &nbsp</span> The DatasetFactory is a data management system for machine learning models,
+                            through which you can get access on a dataset and load it into your AI app just with a call.
+                        </p>
+                        <p class="text-subcontent">
+                            <h5 class="subtitle-content">Install the package</h5>
+                            <span>&nbsp &nbsp &nbsp</span> You can install the package with
+                            pip install DatasetsFactory. After the library was installed, now you have to do some initializations:
+                            <ol>
+                                <li>Get the token access from your profile page!</li>
+                                <li>Import the <code>DatasetsFactory</code> module into your python module!</li>
+                                   ~ <code>from DatasetsFactory import Datasets</code> ~
+                            </ol>
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block js_cdn %}

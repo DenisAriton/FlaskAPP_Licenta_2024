@@ -1,0 +1,141 @@
+{% extends 'index.html' %}
+{% block title %} Datasets {% endblock %}
+{#
+    - Se vor lista toate dataset-urile
+    - Fiecare dataset va fi un link catre un view_function care va lista toate fisierele detinute de acestea si va permite incarcarea unui fisier nou
+    - Editarea unui dataset va consta in : stergerea directorului dupa denumirea acestuia,
+    - Se va introduce paginarea: cate 10 dataseturi pe pagina - pagination from flask-sqlalchemy
+#}
+{% block content %}
+    {{ super() }}
+{% endblock %}
+
+{% block content_page %}
+{% if cur_object.keyRole == 'User' %}
+    {# Un mic helper de cautare si creare de folder nou  #}
+    <div class="container-fluid">
+        <div class="row align-items-center justify-content-center">
+            <div class="row bread-dataset justify-content-center align-items-center">
+              <nav class="bread-nav" aria-label="breadcrumb ">
+                <ol class="breadcrumb bread-dataset">
+                    <li class="breadcrumb-item active"><a href="{{ url_for('Routes.user_dataset') }}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Back to root!">Datasets</a></li>
+                    <li class="breadcrumb-item active"></li>
+                </ol>
+              </nav>
+            </div>
+
+{#            <div class="col-11 p-1">#}
+{#                  <form method="POST" action="{{ url_for('Datasets.list_datasets') }}" novalidate>#}
+{#                      {{ form_search.csrf_token() }}#}
+{#                      {% if form_search.search.errors %}#}
+{#                            {% for error in form_search.search.errors %}#}
+{#                                {{ form_search.search(class="form-control is-invalid search-dataset-nav") }}#}
+{#                                <div class="invalid-feedback">#}
+{#                                    {{ error }}#}
+{#                                </div>#}
+{#                            {% endfor %}#}
+{#                        {% else %}#}
+{#                            {{ form_search.search(class="form-control search-dataset-nav") }}#}
+{#                        {% endif %}#}
+{#                  </form>#}
+{#            </div>#}
+        </div>
+    </div>
+    {# Dataseturile impachetate in carduri  #}
+    <div id="Datasets" class="container-fluid" style="display: block;">
+      <div class="row row-cols-3 g-1">
+       {% if list_access_datasets %}
+           {% for dataset in list_access_datasets %}
+            <div class="col">
+              <div class="p-1">
+                  <div class="card border-0 p-0 dataset-box" style="max-width: 540px; height:fit-content;">
+                      <div class="row g-0" >
+                      {% for el in dir_info.values() %}
+                          {% if el[0] == [] and dataset.datasets_access.directory == el[1].directory %}
+                            <div class="col-md-3 aliniaza-img">
+                              <a href="{{ url_for('Datasets.upload_file', dataset_name=dataset.datasets_access.directory) }}">
+                                  <img src="{{ url_for('static', filename='images/empty-folder.png') }}" class="img-fluid rounded-start" alt="folder">
+                              </a>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <a href="{{ url_for('Datasets.upload_file', dataset_name=dataset.datasets_access.directory) }}">{{ el[1].directory }}</a>
+                                    </h5>
+                                    <div class="text-inside">
+                                        <h6 class="card-title">Description of Dataset:</h6>
+                                        <p class="card-text">{{ el[1].description }}</p>
+                                    </div>
+                                    <p class="card-text">Created at: {{ el[1].TimeCreated.date() }}</p>
+                                </div>
+                            </div>
+                          {% elif el[0] != [] and dataset.datasets_access.directory == el[1].directory %}
+                              <div class="col-md-3 aliniaza-img">
+                                <a href="{{ url_for('Datasets.upload_file', dataset_name=dataset.datasets_access.directory) }}">
+                                    <img src="{{ url_for('static', filename='images/folder.png') }}" class="img-fluid rounded-start" alt="folder">
+                                </a>
+                              </div>
+                              <div class="col-md-8">
+                                  <div class="card-body">
+                                      <h5 class="card-title"><a href="{{ url_for('Datasets.upload_file', dataset_name=dataset.datasets_access.directory) }}">{{ el[1].directory }}</a></h5>
+                                      <div class="text-inside">
+                                          <h6 class="card-title">Description of Dataset:</h6>
+                                          <p class="card-text">{{ el[1].description }}</p>
+                                      </div>
+                                      <p class="card-text">Created at: {{ el[1].TimeCreated.date() }}</p>
+                                  </div>
+                              </div>
+                          {% endif %}
+                      {% endfor %}
+                      </div>{# row #}
+                  </div> {# card #}
+              </div> {# p-1 #}
+            </div> {# col #}
+           {% endfor %}
+       {% endif %}
+      </div> {# row row-cols-3 g-1 #}
+
+{#      <div class="row justify-content-center align-items-center">#}
+        {#  Pagination - 12 dataseturi pe pagina!  #}
+{#        <nav class="pagination" aria-label="Page navigation example">#}
+{#          <ul class="pagination">#}
+{#            {% if items_per_page.has_prev %}#}
+{#                <li class="page-item">#}
+{#                  <a class="page-link" href="{{ url_for('Datasets.list_datasets', page=items_per_page.prev_num) }}" aria-label="Previous">#}
+{#                    <span aria-hidden="true">&laquo;</span>#}
+{#                  </a>#}
+{#                </li>#}
+{#            {% endif %}#}
+{#            {% for page in items_per_page.iter_pages(left_edge=2, right_edge=2) %}#}
+{#                {% if page %}#}
+{#                    {% if page == items_per_page.page %}#}
+{#                        <li class="page-item active"><a class="page-link" href="{{ url_for('Datasets.list_datasets', page=page) }}">{{ page }}</a></li>#}
+{#                    {% else %}#}
+{#                        <li class="page-item"><a class="page-link" href="{{ url_for('Datasets.list_datasets', page=page) }}">{{ page }}</a></li>#}
+{#                    {% endif %}#}
+{#                {% else %}#}
+{#                    <li class="page-item disabled"><a class="page-link" href="#">...</a></li>#}
+{#                {% endif %}#}
+{#            {% endfor %}#}
+{##}
+{#            {% if items_per_page.has_next %}#}
+{#                <li class="page-item">#}
+{#                  <a class="page-link" href="{{ url_for('Datasets.list_datasets', page=items_per_page.next_num) }}" aria-label="Next">#}
+{#                    <span aria-hidden="true">&raquo;</span>#}
+{#                  </a>#}
+{#                </li>#}
+{#            {% endif %}#}
+{#          </ul>#}
+{#        </nav>#}
+{#      </div> {# footer-ul cu paginarea #}
+    </div> {# container-fluid #}
+{% else %}
+    <h1 style="text-align: center;">You don't have access here!</h1>
+{% endif %}
+
+{% endblock %}
+
+{% block js_cdn %}
+    {{ super() }}
+{% endblock %}
+

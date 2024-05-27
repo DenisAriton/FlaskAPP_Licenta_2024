@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block content_page %}
+{% if cur_object.keyRole == 'Admin' %}
     <div class="container-fluid ">
         {# Titlul paginii #}
         <div class="row bread-dataset justify-content-center align-items-center">
@@ -145,6 +146,9 @@
             </nav>
         </div> {# footer-ul cu paginarea #}
     </div> {# Container-fluid #}
+{% else %}
+    <h1 style="text-align: center;">You don't have access here!</h1>
+{% endif %}
 {% endblock %}
 
 {% block js_cdn %}

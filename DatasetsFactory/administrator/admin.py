@@ -124,14 +124,18 @@ def members(id_group):
     """
     page = request.args.get('page', 1, type=int)
     name_group = Groups.query.filter_by(idGroup=id_group).first()
-    items_per_page = db.paginate(UserGroup.query.filter_by(idGroup=id_group), page=page, per_page=10, error_out=False)
-    items_exist = list(items_per_page)
-    return render_template('admin/members.html',
-                           cur_object=current_user,
-                           items_per_page=items_per_page,
-                           id_group=id_group,
-                           group_name=name_group.groupName,
-                           items_exist=items_exist)
+    if name_group:
+        items_per_page = db.paginate(UserGroup.query.filter_by(idGroup=id_group), page=page, per_page=10, error_out=False)
+        items_exist = list(items_per_page)
+        return render_template('admin/members.html',
+                               cur_object=current_user,
+                               items_per_page=items_per_page,
+                               id_group=id_group,
+                               group_name=name_group.groupName,
+                               items_exist=items_exist)
+    else:
+        flash('Something went wrong!', category="error")
+        return redirect(url_for('Routes.home', name=current_user.firstName))
 
 
 @admin_blueprint.route('delete/<string:id_group>/<string:id_member>', methods=['GET'])

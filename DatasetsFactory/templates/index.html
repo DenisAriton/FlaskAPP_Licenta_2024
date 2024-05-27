@@ -80,22 +80,15 @@
                       </a>
                     </li>
                 {% endif %}
-              {% if cur_object.keyRole == 'User' %}
-                <li>
-                {# Pentru useri se va randa VisibleFiles template, iar aici vor fi listate toate fisierele sub forma de tabel cu paginatie, dar cu specificarea datasetului din care face parte #}
-                  <a href="" class="nav-link link-dark link-sidebar">
-                    <span class="material-symbols-outlined" >description</span>
-                    Files
-                  </a>
-                </li>
+                {% if cur_object.keyRole == 'User' %}
                 <li>
                 {# Pentru useri se va randa datasets_user template, iar aici vor fi listate toate datseturile la fel ca pentru admin, fara drepturi de creare sau stergere, doar vizualizare #}
-                  <a href="" class="nav-link link-dark link-sidebar">
+                  <a href="{{ url_for('Routes.user_dataset') }}" class="nav-link link-dark link-sidebar">
                     <span class="material-symbols-outlined" >folder_open</span>
                     Datasets
                   </a>
                 </li>
-              {% endif %}
+                {% endif %}
                 {% if cur_object.keyRole == 'Admin' %}
                     <li>
                       <a href="{{ url_for('Datasets.list_datasets') }}" class="nav-link link-dark link-sidebar">

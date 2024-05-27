@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% block content_page %}
+{% if cur_object.keyRole == 'Admin' %}
     {# Un mic helper de cautare si creare de folder nou  #}
     <div class="container-fluid">
         <div class="row align-items-center justify-content-end">
@@ -77,6 +78,9 @@
             </form>
         </div>
     </div>
+{% else %}
+    <h1 style="text-align: center;">You don't have access here!</h1>
+{% endif %}
 {% endblock %}
 
 {% block js_cdn %}

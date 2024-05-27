@@ -11,9 +11,9 @@
 * Nu s-a realizat partea de vizualizare a unui set de date! - grafic, head, max min...etc
 * Exista buguri pe paginile dataseturilor precum: pagina de cautare are paginare, dar nu functioneaza corespunzator, trebuie implementata o alta pagina separata de listare pentru search ca la groupe!
 * La fel acelasi bug exista si pe upload files legat de parte de search, dar mai mult si cand nu exista un fisier in dataset, tot afiseaza tabelul si nu ar trebui!
-* Package-ul nu a fost implementat
-* Deployment-ul nu a fost implementat
-### De terminat neaparat:
-* Package-ul !!! - nu uita pe autentificare sa adaugi un token de verificare pentru partea de load
-* Deployment-ul: dockerfile-ul(cu gunicorn) si containerul cu Nginx
-* Afisarea paginilor pentru useri: datasets(aceeasi pagina ca pentru admin, fara upload si partea de edit) pe care au acces!
+* Trebuie corectate multe buguri din interfata cu utilizatorul, cand vede seturile de date, dar nu poate accesa fisierele din interiorul lui
+* Nu exista pagina de users pentru admin
+* nu exista paginarea pentru useri...
+* Paginile de search pentru datasets si files trebuie separate, pentru a face paginare inclusiv acolo
+* Nu exista vizualizarea descriptiva a fisierelor de date
+* La nivelul privilegilor nu exista paginare...

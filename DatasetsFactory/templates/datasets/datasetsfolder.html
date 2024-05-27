@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% block content_page %}
+{% if cur_object.keyRole == 'Admin' %}
     {# Un mic helper de cautare si creare de folder nou  #}
     <div class="container-fluid">
         <div class="row align-items-center justify-content-center">
@@ -22,11 +23,13 @@
                 </ol>
               </nav>
             </div>
+
             <div class="col-1" style="text-align: center">
               <a id="MakeFolder" class="img-create-folder" href="{{ url_for('Datasets.create_folder') }}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Make a new Dataset!">
                 <img src="{{ url_for('static', filename='images/add-folder.png') }}" alt="add-folder" width="48px" height="48px">
               </a>
             </div>
+
             <div class="col-11 p-1">
                   <form method="POST" action="{{ url_for('Datasets.list_datasets') }}" novalidate>
                       {{ form_search.csrf_token() }}
@@ -91,9 +94,11 @@
                                       <p class="card-text">Created at: {{ el[1].TimeCreated.date() }}</p>
                                   </div>
                               </div>
+
                               <div class="col-md-1 aliniaza-close">
                                   <span class="material-symbols-outlined x-padd"><a href="{{ url_for('Datasets.delete_datasets', idfolder=el[1].idDataset) }}" class="a-padd">close</a></span>
                               </div>
+
                           {% endif %}
                       {% endfor %}
                       </div>{# row #}
@@ -138,6 +143,10 @@
         </nav>
       </div> {# footer-ul cu paginarea #}
     </div> {# container-fluid #}
+{% else %}
+    <h1 style="text-align: center;">You don't have access here!</h1>
+{% endif %}
+
 {% endblock %}
 
 {% block js_cdn %}

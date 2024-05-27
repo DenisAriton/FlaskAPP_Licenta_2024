@@ -3,6 +3,7 @@ from DatasetsFactory.models import UserIdentification
 from DatasetsFactory import db
 from DatasetsFactory.forms import SignUpForm
 from flask_login import current_user
+from uuid import uuid4
 
 signup_blueprint = Blueprint('Signup', __name__)
 
@@ -22,7 +23,7 @@ def signup():
         # Initializam clasa corespunzatoare tabelului din DB cu valorile introduse in formular
         # new_user = UserIdentification(firstName=fname, lastName=lname, userName=username, email=email, keyRole=0)
         # Keyrole se va asigna direct din db, default User
-        new_user = UserIdentification(firstName=fname, lastName=lname, userName=username, email=email)  # type: ignore[call-arg]
+        new_user = UserIdentification(firstName=fname, lastName=lname, userName=username, email=email, TokenKey=uuid4())  # type: ignore[call-arg]
         new_user.set_password(key=keypas1)
         # introducem datele in baza de date
         db.session.add(new_user)

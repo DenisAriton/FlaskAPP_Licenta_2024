@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block content_page %}
+{% if cur_object.keyRole == 'Admin' %}
     <div class="container-fluid ">
         {# Titlul paginii #}
         <div class="row bread-dataset justify-content-center align-items-center">
@@ -183,6 +184,9 @@
             </div>
         </div>
     </div>
+{% endif %}
+{% else %}
+    <h1 style="text-align: center;">You don't have access here!</h1>
 {% endif %}
 {% endblock %}
 
