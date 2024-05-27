@@ -2,6 +2,5 @@
 .idea
 __pycache__/
 .venv/
-.env
+#.env
 Uploads/
-DB_EER_FlaskAPP.png

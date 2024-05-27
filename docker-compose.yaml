@@ -1,6 +1,6 @@
 version: '3'
 services:
-  dbMySQL:
+  db:
     container_name: ServerMySQL
     image: mariadb:11
     restart: always
@@ -14,25 +14,53 @@ services:
       - databaseSQL:/var/lib/mysql
       #  creeaza baza de date prin fisierul cu extensia .mysql din folderul local ./database
       # - ./database:/docker-entrypoint-initdb.d
-
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+        [
+          "CMD",
+          "healthcheck.sh",
+          "--su-mysql",
+          "--connect",
+          "--innodb_initialized"
+        ]
+      timeout: 30s
     networks:
       - mariadb_network
     ports:
       - "3307:3306"
 
-  #  Al doilea container va rula un server-ul Flask cu toata aplicatia
-  #  DatasetsFactory:
-  #    container_name: FlaskGunicorn
-  #    image: nginx
-  #    restart: always
-
-  #  Al treilea container va rula un server de proxy Nginx
-  #  Nginx:
-  #    container_name: Nginx
-  #    image: nginx
-  #    restart: always
+#  flask_app:
+#    container_name: DatasetsFactory
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#    networks:
+#      - mariadb_network
+#      - nginx_network
+#    ports:
+#      - "8000:8000"
+#    command: bash -c 'gunicorn --bind 0.0.0.0:8000 "wsgi:app_gunicorn"'
+#
+#  nginx:
+#    image: nginx
+#    container_name: flask_nginx
+#    restart: always
+#    volumes:
+#      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+#    ports:
+#      - "80:80"
+#    depends_on:
+#      - flask_app
+#    networks:
+#      - nginx_network
 
 volumes:
   databaseSQL:
 networks:
   mariadb_network:
+#  nginx_network:

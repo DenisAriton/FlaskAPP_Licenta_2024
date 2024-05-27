@@ -38,18 +38,18 @@
                 <table class="table table-hover align-middle" style="width: 98%;">
                     <thead>
                         <tr class="d-flex">
-                            <th scope="col" class="col-2">Datasets</th>
+                            <th scope="col" class="col-3">Datasets</th>
                             <th scope="col" class="col-1">Access</th>
                             <th scope="col" class="col-2">Erase the access on dataset</th>
-                            <th scope="col" class="col-2">Time get access</th>
-                            <th scope="col" class="col-2">Time take access</th>
+                            <th scope="col" class="col-3">Time get access</th>
+                            <th scope="col" class="col-3">Time take access</th>
                         </tr>
                     </thead>
                     <tbody>
 
                         {% for dataset in groups_with_rights %}
                             <tr class="d-flex">
-                                <td class="col-md-2">
+                                <td class="col-md-3">
                                     {{ dataset.datasets_access.directory }}
                                 </td>
                                 <td class="col-md-1">
@@ -60,10 +60,10 @@
                                         Erase
                                     </a>
                                 </td>
-                                <td class="col-md-2">
+                                <td class="col-md-3">
                                     {{ dataset.TimeGetAccess }}
                                 </td>
-                                <td class="col-md-2">
+                                <td class="col-md-3">
                                     {{ dataset.TimeTakeAccess }}
                                 </td>
                             </tr>

@@ -31,8 +31,9 @@
                 <thead>
                     <tr class="d-flex">
                         <th scope="col" class="col-1">No.</th>
+                        <th scope="col" class="col-1">Privileges</th>
                         <th scope="col" class="col-2">Group Name</th>
-                        <th scope="col" class="col-4">Add Members</th>
+                        <th scope="col" class="col-3">Add Members</th>
                         <th scope="col" class="col-1">Members</th>
                         <th scope="col" class="col-1">See members</th>
                         <th scope="col" class="col-2">Edit</th>
@@ -44,8 +45,13 @@
                     {% for group in items_per_page %}
                         <tr class="d-flex">
                             <th scope="row" class="col-1">{{ loop.index }}</th>
+                            <td class="col-md-1">
+                                <span class="material-symbols-outlined">
+                                   <a class="edit-group" href="{{ url_for('Admin.assign_privileges', group_id=group.idGroup) }}">info</a>
+                                </span>
+                            </td>
                             <td class="col-2">{{ group.groupName }}</td>
-                            <td class="col-4">
+                            <td class="col-3">
                                 <form id="Add_{{ group.idGroup }}" method="POST" action="{{ url_for('Admin.assign_group', group_id=group.idGroup) }}" novalidate>
                                     <div class="row justify-content-center align-items-center" >
                                         <span class="material-symbols-outlined" style="width: fit-content;">

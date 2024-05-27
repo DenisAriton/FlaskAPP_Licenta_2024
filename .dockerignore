@@ -1,0 +1,7 @@
+.gitignore
+docker-compose.yaml
+README.md
+DatasetsFactory_Package
+__pycache__
+.venv
+nginx
