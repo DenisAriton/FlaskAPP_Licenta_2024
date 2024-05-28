@@ -45,4 +45,41 @@ def user_dataset():
 @routes_blueprint.route('/datasets/list-all/<string:token>', methods=['GET'])
 def datasets_list(token):
     check_user = UserIdentification.query.filter_by(TokenKey=token).first()
-    return check_user.firstName
+    if check_user:
+        datasets_access = list()
+        send_to_user = dict()
+        group = check_user.groups[0].idGroup
+        files = list()
+        print(group)
+        # Cautam toate dataseturile la care are acces si pastram lista de fisiere a fiecarui dataset
+        datasets_access = [(el.datasets_access.directory, el.datasets_access.dataset_files)
+                           for el in FileAccess.query.filter_by(idGroup=group).all()
+                           if el.keyAccess == 1]
+        for dataset in datasets_access:
+            for file in dataset[1]:
+                if file:
+                    files.append(file.relation_file.idFile)
+                else:
+                    files.clear()
+            send_to_user[dataset[0]] = files.copy()
+            files.clear()
+
+        print(send_to_user)
+        return jsonify(send_to_user)
+    else:
+        return f'Your token key is not valid. Please try again!'
+
+
+@routes_blueprint.route('load/dataset/<string:id_file>/<string:token>', methods=['GET'])
+def load_dataset(id_file, token):
+    check_user = UserIdentification.query.filter_by(TokenKey=token).first()
+    if check_user:
+        files = DataFiles.query.filter_by(idFile=id_file).first()
+        if files:
+            info_file = files.relativePath.split('\\')
+            abs_path_to_file = str(os.path.join(app.config['DATASETS_PATH'], info_file[0]))
+            return send_from_directory(abs_path_to_file, info_file[1], as_attachment=True)
+        else:
+            return 'No such file! Check the id!'
+    else:
+        return f'Your token key is not valid. Please try again!'
