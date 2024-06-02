@@ -86,10 +86,12 @@ def load_dataset(token, id_file):
     # Verificam sa existe token-ul trimis
     if check_user:
         file = DataFiles.query.filter_by(idFile=id_file).first()
-        datails_file = file.relativePath.split('\\')
-        abs_path_to_file = str(os.path.join(app.config['DATASETS_PATH'], datails_file[0]))
+        # Tine cont de faptul ca path-ul in unix este determinat prin slash / nu backslah \\ ca la Windows!!!!!
+        details_file = file.relativePath.split('/')
+        print(file.relativePath)
+        abs_path_to_file = str(os.path.join(app.config['DATASETS_PATH'], details_file[0]))
         if file:
-            return send_from_directory(abs_path_to_file, datails_file[1], as_attachment=True)
+            return send_from_directory(abs_path_to_file, details_file[1], as_attachment=True)
         else:
             return f'This file doesn\'t exist!', 404
     else:
