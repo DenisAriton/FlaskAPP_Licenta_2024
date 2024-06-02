@@ -15,7 +15,7 @@ class UserIdentification(db.Model, UserMixin):
     ImageName = mapped_column(VARCHAR(255), unique=True, nullable=True)
     keyPass = mapped_column(VARCHAR(255), unique=True, nullable=False)
     keyRole = mapped_column(VARCHAR(255), nullable=False, server_default='User')
-    TokenKey = mapped_column(VARCHAR(255), nullable=True)
+    TokenKey = mapped_column(VARCHAR(255), unique=True, nullable=True)
     # Momentul inregistrarii
     timeRegistered = mapped_column(TIMESTAMP, nullable=False, server_default=text('CURRENT_TIMESTAMP'))
     # Momentul resetarii informatiilor personale

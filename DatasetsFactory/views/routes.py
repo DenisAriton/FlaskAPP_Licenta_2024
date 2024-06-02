@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, send_from_directory, jsonify
+from flask import Blueprint, render_template, send_from_directory, jsonify, flash, redirect, url_for
 from flask_login import login_required, current_user
 from DatasetsFactory.models import Datasets, DataFiles, FileAccess, FilesInDataset, UserIdentification
 import os
@@ -19,7 +19,12 @@ def home(name):
 @login_required
 def user_dataset():
     # Cautam grupa din care face parte userul
-    id_group = current_user.groups[0]
+    id_group_list = current_user.groups
+    if id_group_list == []:
+        flash(f'You haven\'t a dataset assigned yet!', category='error')
+        return redirect(url_for('Routes.home', name=current_user.firstName+current_user.lastName))
+    else:
+        id_group = id_group_list[0]
     print(id_group)
     # Preluam toate dataseturile pe care le detine grupa careia i-a fost atribuita userului
     datasets_access = FileAccess.query.filter_by(idGroup=id_group.idGroup).all()
@@ -44,42 +49,48 @@ def user_dataset():
 
 @routes_blueprint.route('/datasets/list-all/<string:token>', methods=['GET'])
 def datasets_list(token):
+    """
+    Vom returna o lista de dataseturi existente si disponibile fiecarui user!
+    :param token: unique token for every user
+    :return: list(available_datasets)
+    """
+    # Identificam user-ul care face GET request-ul
     check_user = UserIdentification.query.filter_by(TokenKey=token).first()
+    # Verificam daca exista vreun user cu acest token, altfel trimitem un mesaj!
     if check_user:
-        datasets_access = list()
-        send_to_user = dict()
-        group = check_user.groups[0].idGroup
-        files = list()
-        print(group)
-        # Cautam toate dataseturile la care are acces si pastram lista de fisiere a fiecarui dataset
-        datasets_access = [(el.datasets_access.directory, el.datasets_access.dataset_files)
-                           for el in FileAccess.query.filter_by(idGroup=group).all()
-                           if el.keyAccess == 1]
-        for dataset in datasets_access:
-            for file in dataset[1]:
-                if file:
-                    files.append(file.relation_file.idFile)
-                else:
-                    files.clear()
-            send_to_user[dataset[0]] = files.copy()
-            files.clear()
-
-        print(send_to_user)
-        return jsonify(send_to_user)
-    else:
-        return f'Your token key is not valid. Please try again!'
-
-
-@routes_blueprint.route('load/dataset/<string:id_file>/<string:token>', methods=['GET'])
-def load_dataset(id_file, token):
-    check_user = UserIdentification.query.filter_by(TokenKey=token).first()
-    if check_user:
-        files = DataFiles.query.filter_by(idFile=id_file).first()
-        if files:
-            info_file = files.relativePath.split('\\')
-            abs_path_to_file = str(os.path.join(app.config['DATASETS_PATH'], info_file[0]))
-            return send_from_directory(abs_path_to_file, info_file[1], as_attachment=True)
+        # Verificam daca are vreo grupa asignata prima data
+        exist_group = check_user.groups
+        if exist_group:
+            # Identificam grupa din care face parte user-ul
+            group = check_user.groups[0].idGroup
+            # Verificam daca exista vreun dataset asignat user-ului, altfel trimitem mesaj!
+            exist_datasets = FileAccess.query.filter_by(idGroup=group, keyAccess=1).all()
+            if exist_datasets:
+                # Cautam toate dataseturile la care are acces si pastram numele datasetului
+                files_in_dataset = [{el.datasets_access.directory:
+                                    list(map(lambda x: {x.relation_file.idFile: x.relation_file.relativePath.split("^%20%^")[1]}, FilesInDataset.query.filter_by(idDataset=el.idDataset).all()))}
+                                    for el in exist_datasets]
+                return jsonify(files_in_dataset)
+            else:
+                return "Your group has not a dataset assigned!", 404
         else:
-            return 'No such file! Check the id!'
+            return (f'You have not a group assigned!\n'
+                    f'\tYou have to be assigned to a group first, and after this, you can access datasets!', 404)
     else:
-        return f'Your token key is not valid. Please try again!'
+        return f'Your token key is not valid. Please try again!', 404
+
+
+@routes_blueprint.route('load/dataset/<string:token>/<string:id_file>', methods=['GET'])
+def load_dataset(token, id_file):
+    check_user = UserIdentification.query.filter_by(TokenKey=token).first()
+    # Verificam sa existe token-ul trimis
+    if check_user:
+        file = DataFiles.query.filter_by(idFile=id_file).first()
+        datails_file = file.relativePath.split('\\')
+        abs_path_to_file = str(os.path.join(app.config['DATASETS_PATH'], datails_file[0]))
+        if file:
+            return send_from_directory(abs_path_to_file, datails_file[1], as_attachment=True)
+        else:
+            return f'This file doesn\'t exist!', 404
+    else:
+        return f'Your token is not valid. Please try again!', 404
