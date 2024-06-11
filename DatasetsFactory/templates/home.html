@@ -59,11 +59,18 @@
                         <p class="text-subcontent">
                             <h5 class="subtitle-content">Install the package</h5>
                             <span>&nbsp &nbsp &nbsp</span> You can install the package with
-                            pip install DatasetsFactory. After the library was installed, now you have to do some initializations:
+                            <code>pip install DatasetsFactory</code>. After the library was installed, now you have to do some initializations:
                             <ol>
                                 <li>Get the token access from your profile page!</li>
                                 <li>Import the <code>DatasetsFactory</code> module into your python module!</li>
-                                   ~ <code>from DatasetsFactory import Datasets</code> ~
+                                    ~ <code>from DatasetsFactory import Datasets</code> ~
+                                <li>Initialize the library with your unique token (can be seen in the profile page)</li>
+                                    ~ <code>init_dataset = Datasets("your unique token") </code> ~
+                                <li>Visualize the datasets on which you have privileges</li>
+                                    ~ <code>init_dataset.view_datasets() </code> ~ -> return None
+                                <li>Load a dataset, at a time, that you want to save locally on your PC </li>
+                                    ~ <code>init_dataset("the_name_of_dataset") </code> ~
+                                <p>The last call will return a list of dictionaries with the name of the file and the absolute path to this!</p>
                             </ol>
                         </p>
 
